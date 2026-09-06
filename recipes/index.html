@@ -1,0 +1,1451 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Weekly Haul — Menu &amp; Grocery Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --pine-950:#182620;
+  --pine-900:#20342A;
+  --pine-800:#2B4438;
+  --pine-700:#3C5C4C;
+  --mustard:#C99A2E;
+  --mustard-light:#E4BE63;
+  --brick:#9C3D28;
+  --paper:#F2F1E8;
+  --paper-dim:#E9E7D9;
+  --card:#FBFAF5;
+  --ink:#1C231D;
+  --ink-soft:#5B6459;
+  --line:#DAD7C6;
+  --radius-card:14px;
+  --radius-pill:999px;
+  --shadow-1:0 1px 2px rgba(24,38,32,.06), 0 1px 1px rgba(24,38,32,.04);
+  --font-display:"Fraunces", Georgia, serif;
+  --font-body:"Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+*,*::before,*::after{box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--font-body);
+  line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+
+button{font-family:inherit;}
+input,select{font-family:inherit;}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.001ms !important; transition-duration:.001ms !important;}
+}
+
+:focus-visible{
+  outline:2.5px solid var(--mustard);
+  outline-offset:2px;
+}
+
+/* ---------- Top bar ---------- */
+.topbar{
+  background:var(--pine-950);
+  color:var(--paper);
+  position:sticky;
+  top:0;
+  z-index:20;
+  border-bottom:1px solid var(--pine-800);
+}
+.topbar-inner{
+  max-width:1180px;
+  margin:0 auto;
+  padding:14px 20px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+@media (max-width:480px){
+  .brand-text p{display:none;}
+  .update-btn span,.clear-week-btn span{display:none;}
+}
+.brand{display:flex; align-items:center; gap:12px;}
+.brand-mark{
+  color:var(--mustard-light);
+  display:flex;
+  flex-shrink:0;
+}
+.brand-text h1{
+  font-family:var(--font-display);
+  font-optical-sizing:auto;
+  font-weight:600;
+  font-size:1.32rem;
+  margin:0;
+  letter-spacing:.01em;
+}
+.brand-text p{
+  margin:1px 0 0;
+  font-size:.78rem;
+  color:#B9C4B6;
+}
+.topbar-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-shrink:0;
+}
+.clear-week-btn,.update-btn{
+  background:transparent;
+  border:1px solid var(--pine-700);
+  color:var(--paper);
+  padding:8px 14px;
+  border-radius:var(--radius-pill);
+  font-size:.82rem;
+  cursor:pointer;
+  transition:background .15s ease, border-color .15s ease;
+  white-space:nowrap;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.clear-week-btn:hover,.update-btn:hover{background:var(--pine-800); border-color:var(--pine-700);}
+.update-btn{border-color:var(--mustard); color:var(--mustard-light);}
+.update-btn:hover{background:var(--pine-800); border-color:var(--mustard-light);}
+
+/* ---------- Layout ---------- */
+.layout{
+  max-width:1180px;
+  margin:0 auto;
+  padding:22px 20px 100px;
+  display:grid;
+  grid-template-columns:1fr;
+  gap:22px;
+}
+
+@media (min-width:900px){
+  .layout{
+    grid-template-columns:minmax(0,1fr) 360px;
+    align-items:start;
+    padding-bottom:40px;
+  }
+}
+
+/* ---------- Planner controls ---------- */
+.planner-controls{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:6px;
+}
+.search-wrap{
+  position:relative;
+  flex:1 1 220px;
+}
+.search-icon{
+  position:absolute;
+  left:12px;
+  top:50%;
+  transform:translateY(-50%);
+  color:var(--ink-soft);
+  pointer-events:none;
+}
+#searchInput{
+  width:100%;
+  padding:10px 12px 10px 34px;
+  border-radius:10px;
+  border:1px solid var(--line);
+  background:var(--card);
+  color:var(--ink);
+  font-size:.95rem;
+}
+#searchInput::placeholder{color:var(--ink-soft);}
+.sort-wrap{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:.82rem;
+  color:var(--ink-soft);
+}
+#sortSelect{
+  padding:9px 10px;
+  border-radius:10px;
+  border:1px solid var(--line);
+  background:var(--card);
+  color:var(--ink);
+  font-size:.85rem;
+}
+
+.planner-count{
+  margin:2px 2px 14px;
+  font-size:.8rem;
+  color:var(--ink-soft);
+}
+
+/* ---------- Recipe grid ---------- */
+.recipe-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(200px,1fr));
+  gap:12px;
+}
+
+.empty-state{
+  color:var(--ink-soft);
+  font-size:.9rem;
+  padding:30px 4px;
+}
+
+.recipe-card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius-card);
+  padding:14px 14px 12px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  cursor:pointer;
+  transition:border-color .15s ease, box-shadow .15s ease, transform .1s ease;
+  box-shadow:var(--shadow-1);
+}
+.recipe-card:hover{border-color:#C7C2A8;}
+.recipe-card:active{transform:translateY(1px);}
+.recipe-card.is-picked{
+  border-color:var(--mustard);
+  box-shadow:0 0 0 1.5px var(--mustard) inset;
+  background:#FDFAF0;
+}
+
+.recipe-card-top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:8px;
+}
+.recipe-name{
+  font-family:var(--font-display);
+  font-weight:600;
+  font-size:1.04rem;
+  margin:0;
+  line-height:1.25;
+}
+.recipe-badge{
+  flex-shrink:0;
+  font-size:.68rem;
+  color:var(--ink-soft);
+  background:var(--paper-dim);
+  border-radius:var(--radius-pill);
+  padding:3px 8px;
+  white-space:nowrap;
+  margin-top:2px;
+}
+.recipe-preview{
+  margin:0;
+  font-size:.8rem;
+  color:var(--ink-soft);
+  flex-grow:1;
+}
+.recipe-card-foot{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-top:2px;
+}
+
+.pick-btn{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  background:transparent;
+  border:1px solid var(--line);
+  color:var(--ink);
+  border-radius:var(--radius-pill);
+  padding:6px 12px;
+  font-size:.78rem;
+  cursor:pointer;
+  transition:background .15s ease, border-color .15s ease, color .15s ease;
+}
+.pick-check{visibility:hidden;}
+.recipe-card.is-picked .pick-btn{
+  background:var(--pine-900);
+  border-color:var(--pine-900);
+  color:var(--paper);
+}
+.recipe-card.is-picked .pick-check{visibility:visible;}
+.recipe-card.is-picked .pick-btn-label::before{content:"On the list";}
+.recipe-card.is-picked .pick-btn-label{font-size:0;}
+.recipe-card.is-picked .pick-btn-label::before{font-size:.78rem;}
+
+.stepper{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  background:var(--paper-dim);
+  border-radius:var(--radius-pill);
+  padding:4px 6px;
+}
+.stepper-btn{
+  width:20px; height:20px;
+  border-radius:50%;
+  border:none;
+  background:var(--card);
+  color:var(--ink);
+  font-size:.95rem;
+  line-height:1;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 1px 1px rgba(0,0,0,.08);
+}
+.stepper-value{
+  font-size:.78rem;
+  min-width:20px;
+  text-align:center;
+  font-variant-numeric:tabular-nums;
+}
+
+/* ---------- Grocery list panel ---------- */
+.list-panel{
+  background:var(--pine-950);
+  color:var(--paper);
+  border-radius:18px;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+@media (min-width:900px){
+  .list-panel{
+    position:sticky;
+    top:82px;
+    max-height:calc(100vh - 102px);
+  }
+}
+
+.list-panel-head{
+  padding:18px 18px 12px;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  border-bottom:1px solid var(--pine-800);
+}
+.list-panel-head h2{
+  font-family:var(--font-display);
+  font-weight:600;
+  margin:0 0 2px;
+  font-size:1.2rem;
+}
+.list-panel-head p{
+  margin:0;
+  font-size:.78rem;
+  color:#AEBBAB;
+}
+.sheet-close{
+  display:none;
+  background:transparent;
+  border:none;
+  color:var(--paper);
+  cursor:pointer;
+  padding:4px;
+}
+
+.list-panel-body{
+  padding:6px 18px 14px;
+  overflow-y:auto;
+  flex:1;
+}
+
+.region-group{margin-top:14px;}
+.region-group:first-child{margin-top:10px;}
+.region-title{
+  display:flex;
+  align-items:baseline;
+  gap:8px;
+  font-size:.72rem;
+  letter-spacing:.03em;
+  color:var(--mustard-light);
+  margin:0 0 6px;
+  font-weight:600;
+}
+.region-title .region-count{
+  color:#7C897A;
+  font-weight:400;
+}
+
+.item-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:7px 0;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.item-row:last-child{border-bottom:none;}
+.item-checkbox{
+  width:18px; height:18px;
+  border-radius:5px;
+  border:1.5px solid #6B7A67;
+  flex-shrink:0;
+  cursor:pointer;
+  background:transparent;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0;
+}
+.item-checkbox svg{visibility:hidden; color:var(--pine-950);}
+.item-row.is-checked .item-checkbox{background:var(--mustard-light); border-color:var(--mustard-light);}
+.item-row.is-checked .item-checkbox svg{visibility:visible;}
+.item-name{
+  flex:1;
+  font-size:.88rem;
+  cursor:pointer;
+}
+.item-row.is-checked .item-name{
+  text-decoration:line-through;
+  color:#7C897A;
+}
+.item-qty{
+  font-size:.82rem;
+  font-variant-numeric:tabular-nums;
+  color:#CBD4C9;
+  white-space:nowrap;
+}
+.item-row.is-checked .item-qty{color:#5E6B5B;}
+
+.list-panel-foot{
+  display:flex;
+  justify-content:space-between;
+  padding:10px 18px 16px;
+  border-top:1px solid var(--pine-800);
+}
+.text-btn{
+  background:transparent;
+  border:none;
+  color:#AEBBAB;
+  font-size:.8rem;
+  cursor:pointer;
+  padding:6px 4px;
+}
+.text-btn:hover{color:var(--paper);}
+
+.list-empty{
+  color:#7C897A;
+  font-size:.85rem;
+  padding:24px 2px;
+}
+
+/* ---------- Mobile bottom bar ---------- */
+.mobile-bar{
+  position:fixed;
+  left:16px; right:16px; bottom:16px;
+  z-index:30;
+  background:var(--pine-950);
+  color:var(--paper);
+  border:none;
+  border-radius:var(--radius-pill);
+  padding:13px 18px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  box-shadow:0 8px 24px rgba(24,38,32,.35);
+  cursor:pointer;
+  transform:translateY(120%);
+  transition:transform .25s ease;
+}
+.mobile-bar.is-visible{transform:translateY(0);}
+.mobile-bar-count{
+  background:var(--mustard-light);
+  color:var(--pine-950);
+  font-weight:700;
+  font-size:.82rem;
+  width:24px; height:24px;
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+.mobile-bar-label{
+  font-size:.86rem;
+  flex:1;
+  text-align:left;
+}
+.mobile-bar svg{flex-shrink:0;}
+
+.scrim{
+  display:none;
+  position:fixed; inset:0;
+  background:rgba(20,28,22,.4);
+  z-index:24;
+}
+
+@media (max-width:899.98px){
+  .list-panel{
+    position:fixed;
+    left:0; right:0; bottom:0;
+    top:8%;
+    border-radius:20px 20px 0 0;
+    z-index:26;
+    transform:translateY(100%);
+    transition:transform .28s ease;
+  }
+  .list-panel.is-open{transform:translateY(0);}
+  .sheet-close{display:block;}
+  .scrim.is-visible{display:block;}
+}
+
+body.sheet-open{overflow:hidden;}
+
+/* ---------- Update recipes modal ---------- */
+.modal-scrim{
+  display:none;
+  position:fixed; inset:0;
+  background:rgba(20,28,22,.5);
+  z-index:44;
+}
+.modal-scrim.is-visible{display:block;}
+
+.modal{
+  display:none;
+  position:fixed;
+  z-index:45;
+  left:50%; top:50%;
+  transform:translate(-50%,-50%);
+  width:min(92vw, 460px);
+  max-height:86vh;
+  overflow-y:auto;
+  background:var(--card);
+  color:var(--ink);
+  border-radius:16px;
+  box-shadow:0 20px 50px rgba(24,38,32,.35);
+  padding:20px 20px 16px;
+}
+.modal.is-visible{display:block;}
+
+.modal-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+}
+.modal-head h2{
+  font-family:var(--font-display);
+  font-weight:600;
+  font-size:1.15rem;
+  margin:0;
+}
+.modal-head .sheet-close{
+  display:block;
+  color:var(--ink-soft);
+}
+.modal-head .sheet-close:hover{color:var(--ink);}
+
+.modal-status{
+  margin:6px 0 0;
+  font-size:.78rem;
+  color:var(--ink-soft);
+}
+
+.modal-body{margin-top:14px;}
+
+.file-field{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  margin-top:14px;
+}
+.file-field:first-child{margin-top:0;}
+.file-field-label{
+  font-size:.85rem;
+  font-weight:600;
+}
+.file-field-label em{
+  font-style:normal;
+  font-weight:400;
+  color:var(--ink-soft);
+  font-size:.76rem;
+  margin-left:4px;
+}
+.file-field input[type="file"]{
+  font-size:.8rem;
+  color:var(--ink-soft);
+  border:1px dashed var(--line);
+  border-radius:10px;
+  padding:9px 10px;
+  background:var(--paper);
+}
+.file-hint{
+  margin:0;
+  font-size:.74rem;
+  color:var(--ink-soft);
+  line-height:1.4;
+}
+
+.modal-message{
+  margin:14px 0 0;
+  font-size:.82rem;
+  padding:10px 12px;
+  border-radius:10px;
+  line-height:1.4;
+}
+.modal-message.is-error{background:#FBEBE6; color:var(--brick);}
+.modal-message.is-success{background:#EEF3E7; color:#3D6B3F;}
+
+.modal-foot{
+  margin-top:18px;
+  padding-top:14px;
+  border-top:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.modal-foot-actions{display:flex; gap:8px; margin-left:auto;}
+
+.ghost-btn{
+  background:transparent;
+  border:1px solid var(--line);
+  color:var(--ink);
+  padding:8px 14px;
+  border-radius:var(--radius-pill);
+  font-size:.82rem;
+  cursor:pointer;
+}
+.ghost-btn:hover{border-color:#C7C2A8;}
+
+.primary-btn{
+  background:var(--mustard);
+  border:1px solid var(--mustard);
+  color:var(--pine-950);
+  font-weight:600;
+  padding:8px 16px;
+  border-radius:var(--radius-pill);
+  font-size:.82rem;
+  cursor:pointer;
+}
+.primary-btn:hover{background:var(--mustard-light); border-color:var(--mustard-light);}
+.primary-btn:disabled{
+  background:var(--paper-dim);
+  border-color:var(--line);
+  color:var(--ink-soft);
+  cursor:not-allowed;
+}
+
+/* ---------- Print ---------- */
+@media print{
+  .topbar, .planner, .mobile-bar, .scrim, .list-panel-foot, .sheet-close{display:none !important;}
+  body{background:#fff;}
+  .list-panel{
+    position:static;
+    color:#000;
+    background:#fff;
+    max-height:none;
+    transform:none;
+  }
+  .list-panel-head p, .region-title .region-count, .item-qty{color:#333 !important;}
+  .region-title{color:#000 !important;}
+  .item-row{border-color:#ccc;}
+  .item-checkbox{border-color:#666;}
+}
+
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 40 40" width="26" height="26">
+          <path d="M8 6 L8 34 M8 6 C8 6 6 14 6 18 C6 21 8 22 8 22 M8 6 C8 6 10 14 10 18 C10 21 8 22 8 22" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M20 6 C16 6 15 10 15 14 C15 17 17 19 20 19 L20 34 M20 6 L20 19" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <div class="brand-text">
+        <h1>The Weekly Haul</h1>
+        <p>Pick your meals, get your list</p>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="update-btn" id="updateRecipesBtn" type="button">
+        <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true"><path d="M10 13 L10 3 M6 7 L10 3 L14 7 M4 15 L4 16.5 C4 17.3 4.7 18 5.5 18 L14.5 18 C15.3 18 16 17.3 16 16.5 L16 15" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Update recipes
+      </button>
+      <button class="clear-week-btn" id="clearWeekBtn" type="button" title="Clear this week's picks">Clear week</button>
+    </div>
+  </div>
+</header>
+
+<main class="layout">
+
+  <section class="planner" aria-label="Recipe picker">
+    <div class="planner-controls">
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+          <circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="2" fill="none"/>
+          <line x1="15.2" y1="15.2" x2="20.5" y2="20.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Find a recipe…" aria-label="Search recipes">
+      </div>
+      <div class="sort-wrap">
+        <label for="sortSelect">Sort</label>
+        <select id="sortSelect">
+          <option value="alpha">A–Z</option>
+          <option value="size">Ingredient count</option>
+          <option value="selected">Picked first</option>
+        </select>
+      </div>
+    </div>
+
+    <p class="planner-count" id="resultCount"></p>
+
+    <div class="recipe-grid" id="recipeGrid" role="list"></div>
+    <p class="empty-state" id="emptyState" hidden>No recipes match “<span id="emptyQuery"></span>.”</p>
+  </section>
+
+  <aside class="list-panel" id="listPanel" aria-label="Grocery list">
+    <div class="list-panel-head">
+      <div>
+        <h2>Grocery list</h2>
+        <p id="listSubtitle">Nothing picked yet</p>
+      </div>
+      <button class="sheet-close" id="sheetClose" type="button" aria-label="Close grocery list">
+        <svg viewBox="0 0 20 20" width="18" height="18"><path d="M4 4 L16 16 M16 4 L4 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="list-panel-body" id="listBody"></div>
+    <div class="list-panel-foot">
+      <button class="text-btn" id="uncheckAllBtn" type="button">Uncheck all</button>
+      <button class="text-btn" id="printBtn" type="button">Print</button>
+    </div>
+  </aside>
+
+</main>
+
+<button class="mobile-bar" id="mobileBar" type="button">
+  <span class="mobile-bar-count" id="mobileBarCount">0</span>
+  <span class="mobile-bar-label" id="mobileBarLabel">recipes picked — view list</span>
+  <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M6 4 L13 10 L6 16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
+
+<div class="scrim" id="scrim"></div>
+
+<div class="modal-scrim" id="modalScrim"></div>
+<div class="modal" id="updateModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" hidden>
+  <div class="modal-head">
+    <h2 id="modalTitle">Update your recipe sheet</h2>
+    <button class="sheet-close" id="modalCloseBtn" type="button" aria-label="Close">
+      <svg viewBox="0 0 20 20" width="18" height="18"><path d="M4 4 L16 16 M16 4 L4 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+
+  <p class="modal-status" id="modalStatus"></p>
+
+  <div class="modal-body">
+    <label class="file-field">
+      <span class="file-field-label">Recipes CSV <em>required</em></span>
+      <input type="file" id="recipesFileInput" accept=".csv,text/csv">
+    </label>
+    <p class="file-hint">Same layout as before: first column “Ingredients”, then one column per recipe, with amounts filled in below.</p>
+
+    <label class="file-field">
+      <span class="file-field-label">Groupings CSV <em>optional</em></span>
+      <input type="file" id="groupingsFileInput" accept=".csv,text/csv">
+    </label>
+    <p class="file-hint">Two columns: “Ingredients” and “Region”. Skip this to keep your current aisle groupings — brand-new ingredients will land under “Other” until grouped.</p>
+
+    <p class="modal-message" id="modalMessage" hidden></p>
+  </div>
+
+  <div class="modal-foot">
+    <button class="text-btn" id="restoreDefaultBtn" type="button" hidden>Restore sample recipes</button>
+    <div class="modal-foot-actions">
+      <button class="ghost-btn" id="modalCancelBtn" type="button">Cancel</button>
+      <button class="primary-btn" id="modalReplaceBtn" type="button" disabled>Replace recipes</button>
+    </div>
+  </div>
+</div>
+
+<template id="recipeCardTemplate">
+  <article class="recipe-card" role="listitem" tabindex="0">
+    <div class="recipe-card-top">
+      <h3 class="recipe-name"></h3>
+      <span class="recipe-badge"></span>
+    </div>
+    <p class="recipe-preview"></p>
+    <div class="recipe-card-foot">
+      <button class="pick-btn" type="button">
+        <svg class="pick-check" viewBox="0 0 16 16" width="13" height="13"><path d="M3 8.5 L6.5 12 L13 4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="pick-btn-label">Add to week</span>
+      </button>
+      <div class="stepper" hidden>
+        <button class="stepper-btn" data-dir="-1" type="button" aria-label="Fewer times">−</button>
+        <span class="stepper-value">1×</span>
+        <button class="stepper-btn" data-dir="1" type="button" aria-label="More times">+</button>
+      </div>
+    </div>
+  </article>
+</template>
+
+<script id="recipeData" type="application/json">{"recipes":{"Asian_Beef_Soup":{"Beef Stock (cups)":2,"Bone Broth (cups)":2,"Butter (tbsp)":4,"Carbe Diem (boxes)":1,"Cilantro (bunches)":1,"Green Onions (bunches)":1,"Milanesa Steak (g)":700,"Ramen Broth (cups)":2,"Spinach (g)":283},"Orange_Chicken":{"Asparagus (bunches)":1,"Butter (tbsp)":2,"Ketchup (g)":39,"Light Mayo (g)":39,"Popcorn Chicken (g)":535,"Rice (cups)":1,"White Gravy (g)":78},"Pulled_Chicken_Nachos":{"Cheddar (g)":60,"Chicken Breast (g)":300,"Chicken Stock (cups)":1,"Guacamole (g)":57,"Lettuce (g)":453,"Mission Chips (g)":160,"Red Beans (cans)":1,"Sour Cream (g)":57,"Spicy Queso (g)":120},"Pulled_BBQ_Sandwich":{"Asparagus (bunches)":1,"BBQ NSA (g)":300,"Butter (tbsp)":3,"Chicken Breast (g)":645,"Chicken Stock (cups)":2,"Lewis Keto Burger (buns)":4,"Paneer/Baked Cheese (g)":85},"Beef_Stroganoff":{"Bell Peppers (g)":300,"Broccoli (g)":453,"Butter (tbsp)":3,"Ground Beef (g)":430,"Hamburger Helper (boxes)":1,"Milk (cups)":2.25,"Sour Cream (g)":100,"Zucchini (g)":300},"Chicken_Noodle_Soup":{"Baby Carrots (g)":453,"Broccoli (g)":453,"Butter (tbsp)":4,"Carbe Diem (boxes)":1,"Chicken Breast (g)":725,"Chicken Stock (cups)":4,"Cilantro (bunches)":0.5,"Onion (g)":50},"Taco_Salad":{"Cheddar (g)":50,"Cilantro (bunches)":0.5,"Guacamole (g)":57,"Lettuce (g)":453,"Milanesa Steak (g)":330,"Mission Chips (g)":160,"Red Beans (cans)":1,"Sour Cream (g)":57,"Spicy Queso (g)":110},"Steak_and_Pickles":{"Eggs (count)":2,"Flour (g)":100,"Milanesa Steak (g)":600,"Panko Crumbs (g)":75,"Pickle Spears (jars)":2,"Ranch (g)":160},"Rice_and_Beans":{"Avocado (count)":1,"Chicken Breast (g)":295,"Milanesa Steak (g)":295,"Red Beans (cans)":1,"Rice (cups)":1,"Tomato Paste (g)":33},"Enchiladas":{"Cheddar (g)":35,"Cilantro (bunches)":1,"Corn Tortillas (count)":3,"Enchilada Sauce (g)":800,"Flour Tortillas (count)":4,"Ground Beef (g)":300,"Guacamole (g)":57,"Lettuce (g)":453,"Red Beans (cans)":1,"Sour Cream (g)":57,"Spicy Queso (g)":100},"Chicken_Parm":{"Marinara (ounces)":12,"Cheddar (g)":85,"Chicken Breast (g)":453,"Croutons (g)":45,"Eggs (count)":4,"Lettuce (g)":453,"Panko Crumbs (g)":75,"Parmesan (g)":85},"Buffalo_Chicken_Dip":{"Baby Carrots (g)":453,"Broccoli (g)":453,"Cheddar (g)":70,"Chicken Breast (g)":400,"Chicken Stock (cups)":1,"Cream Cheese (g)":226,"Frank's Red Hot (g)":100,"Ranch (g)":70,"Yuca (g)":175},"Asopao":{"Baby Carrots (g)":226,"Bell Peppers (g)":119,"Black Forest Ham (g)":226,"Bone Broth (cups)":2,"Butter (tbsp)":3,"Chicken Breast (g)":360,"Chicken Stock (cups)":2,"Cilantro (bunches)":1,"Olives (g)":100,"Red Beans (cans)":1,"Rice (cups)":1,"Tomato Paste (g)":75},"Beef_Stew":{"Baby Carrots (g)":453,"Beef Stock (cups)":2,"Bone Broth (cups)":2,"Butter (tbsp)":3,"Cilantro (bunches)":1,"Little Potatoes (g)":453,"Olives (g)":100,"Onion (g)":50,"Spinach (g)":283,"Stew Steak (g)":820,"Sweet Peas (cans)":1},"Hamburgers":{"Burger Buns (count)":4,"Cheddar (g)":145,"Croutons (g)":40,"Ground Beef (g)":480,"Lettuce (g)":453,"Ranch (g)":60},"Chicken_Alfredo":{"Broccoli (g)":453,"Butter (tbsp)":3,"Carbe Diem (boxes)":1,"Chicken Breast (g)":450,"Heavy Whipping Cream (g)":135,"Parmesan (g)":85},"Chili":{"Bell Peppers (g)":453,"Carbe Diem (boxes)":1,"Cheddar (g)":80,"Crushed Tomato (g)":398,"Ground Beef (g)":310,"Red Beans (cans)":1,"Sour Cream (g)":60},"Creamy_Cheddar_Bacon_Chicken":{"Bacon (g)":227,"Butter (tbsp)":3,"Cheddar (g)":75,"Chicken Breast (g)":265,"Chicken Stock (cups)":240,"Cream Cheese (g)":113,"Mashed Potato (cups)":2,"Milk (cups)":0.75,"Spinach (g)":283},"Famous_Bowl":{"Cheddar (g)":120,"Mashed Potato (cups)":2,"Popcorn Chicken (g)":395,"Sweet Corn (cans)":1,"Sweet Peas (cans)":1,"White Gravy (g)":78},"Lasagna":{"Marinara (ounces)":12,"Bell Peppers (g)":357,"Cream Cheese (g)":226,"Ground Beef (g)":300,"Lasagna Sheets (boxes)":1,"Milk (cups)":0.25,"Mozzarella (g)":60,"Tomato (g)":500},"Mac_and_Cheese":{"Asparagus (bunches)":1,"Butter (tbsp)":1,"Carbe Diem (boxes)":1,"Cheddar (g)":33,"Hot Dogs (count)":6,"Milk (cups)":0.5,"Mozzarella (g)":35,"Parmesan (g)":33,"Spicy Queso (g)":70},"Omurice":{"Butter (tbsp)":2,"Cheddar (g)":100,"Chicken Breast (g)":150,"Eggs (count)":12,"Ketchup (g)":60,"Milk (cups)":0.416,"Mixed Peas and Carrots (cans)":1,"Rice (cups)":0.75,"Soy Sauce (g)":30},"Open_Face_Burrito":{"Cheddar (g)":60,"Cilantro (bunches)":0.5,"Flour Tortillas (count)":4,"Guacamole (g)":57,"Lettuce (g)":453,"Milanesa Steak (g)":300,"Red Beans (cans)":1,"Rice (cups)":0.5,"Sour Cream (g)":57,"Spicy Queso (g)":125,"Yuca (g)":100},"Deep_Dish_Pizza":{"Cream Cheese (g)":56,"Crushed Tomato (g)":794,"Eggs (count)":1,"Ground Beef (g)":225,"Mozzarella (g)":362,"Onion (g)":90,"Tapioca Flour (g)":120},"Popcorn_Chicken":{"Baby Carrots (g)":453,"BBQ NSA (g)":50,"Broccoli (g)":453,"Butter (tbsp)":2,"Cheddar (g)":195,"Frank's Red Hot (g)":50,"Little Potatoes (g)":453},"Spaghetti":{"Marinara (ounces)":12,"Asparagus (bunches)":1,"Butter (tbsp)":2,"Carbe Diem (boxes)":1,"Ground Beef (g)":385,"Parmesan (g)":100},"Two_Sauce_Pasta":{"Marinara (ounces)":12,"Broccoli (g)":453,"Carbe Diem (boxes)":1,"Hot Dogs (count)":6,"Mozzarella (g)":80,"Bertolli Alfredo (jars)":1},"Pepper_Beef":{"Bell Peppers (g)":300,"Broccoli (g)":340,"Butter (tbsp)":4,"Cheddar (g)":66,"Cheddar Bay Biscuits (boxes)":1,"Ground Beef (g)":300,"Rice (cups)":1}},"groupings":{"Alfredo (ounces)":"Sauce","Asparagus (bunches)":"Produce","Avocado (count)":"Produce","Baby Carrots (g)":"Produce","Bacon (g)":"Meats","Bacon Bits (g)":"International","BBQ NSA (g)":"Sauce","BBQ Sauce (g)":"Sauce","Beef Stock (cups)":"International","Bell Peppers (g)":"Produce","Bertolli Alfredo (jars)":"International","Black Forest Ham (g)":"Meats","Bone Broth (cups)":"International","Bread (g)":"Produce","Broccoli (g)":"Produce","Burger Buns (count)":"Produce","Butter (tbsp)":"Dairy","Canned Carrots (cans)":"International","Carbe Diem (boxes)":"EXOTIC","Cheddar (g)":"Dairy","Cheddar Bay Biscuits (boxes)":"Baking/Spice","Cheese Dogs (count)":"Meats","Chicken Breast (g)":"Meats","Chicken Stock (cups)":"International","Cilantro (bunches)":"Produce","Corn Bread (boxes)":"Baking/Spice","Corn on the Cob (count)":"Produce","Corn Tortillas (count)":"International","Couscous (cups)":"International","Cream Cheese (g)":"Dairy","Croutons (g)":"Sauce","Crushed Tomato (g)":"Sauce","Eggs (count)":"Dairy","Enchilada Sauce (g)":"Sauce","Flour (g)":"International","Flour Tortillas (count)":"International","Frank's Red Hot (g)":"Sauce","Green Onions (bunches)":"Produce","Ground Beef (g)":"Meats","Guacamole (g)":"Produce","Hamburger Helper (boxes)":"International","Heavy Whipping Cream (g)":"Dairy","Hot Dogs (count)":"Meats","Hot Sauce (g)":"Sauce","Ketchup (g)":"Sauce","Kraft Slices (count)":"Dairy","Lasagna Sheets (boxes)":"EXOTIC","Lettuce (g)":"Produce","Lewis Keto Burger (buns)":"Produce","Little Potatoes (g)":"Produce","Marinara (ounces)":"Sauce","Mashed Potato (cups)":"International","Milanesa Steak (g)":"Meats","Milk (cups)":"Dairy","Mission Chips (g)":"International","Mixed Peas and Carrots (cans)":"International","Mozzarella (g)":"Dairy","Olives (g)":"Produce","Onion (g)":"Produce","Orange Sauce (g)":"Sauce","Pad Thai Rice Noodles (g)":"International","Paneer/Baked Cheese (g)":"EXOTIC","Panko Crumbs (g)":"International","Parmesan (g)":"Dairy","Pasta Elbows (boxes)":"International","Pasta Penne (boxes)":"International","Pasta Spaghetti (boxes)":"International","Pho Broth (cups)":"International","Pickle Spears (jars)":"International","Pizza (count)":"Frozen","Popcorn Chicken (g)":"Frozen","Pumpkin (g)":"Produce","Ramen Broth (cups)":"International","Ranch (g)":"Sauce","Red Beans (cans)":"International","Rice (cups)":"International","Sour Cream (g)":"Dairy","Soy Sauce (g)":"Sauce","Spicy Queso (g)":"Sauce","Spinach (g)":"Produce","Stew Steak (g)":"Meats","Sweet Corn (cans)":"International","Sweet Peas (cans)":"International","Tapioca Flour (g)":"Baking/Spice","Tomato (g)":"Produce","White Gravy (g)":"Sauce","Yuca (g)":"Frozen","Zucchini (g)":"Produce","Light Mayo (g)":"Sauce","Tomato Paste (g)":"International"},"ingredientOrder":["Marinara (ounces)","Alfredo (ounces)","Asparagus (bunches)","Avocado (count)","Baby Carrots (g)","Bacon (g)","Bacon Bits (g)","BBQ NSA (g)","BBQ Sauce (g)","Beef Stock (cups)","Bell Peppers (g)","Black Forest Ham (g)","Bone Broth (cups)","Bread (g)","Broccoli (g)","Burger Buns (count)","Butter (tbsp)","Canned Carrots (cans)","Carbe Diem (boxes)","Cheddar (g)","Cheddar Bay Biscuits (boxes)","Cheese Dogs (count)","Chicken Breast (g)","Chicken Stock (cups)","Cilantro (bunches)","Corn Bread (boxes)","Corn on the Cob (count)","Corn Tortillas (count)","Couscous (cups)","Cream Cheese (g)","Croutons (g)","Crushed Tomato (g)","Eggs (count)","Enchilada Sauce (g)","Flour (g)","Flour Tortillas (count)","Frank's Red Hot (g)","Green Onions (bunches)","Ground Beef (g)","Guacamole (g)","Hamburger Helper (boxes)","Heavy Whipping Cream (g)","Hot Dogs (count)","Hot Sauce (g)","Ketchup (g)","Kraft Slices (count)","Lasagna Sheets (boxes)","Lettuce (g)","Lewis Keto Burger (buns)","Light Mayo (g)","Little Potatoes (g)","Mashed Potato (cups)","Milanesa Steak (g)","Milk (cups)","Mission Chips (g)","Mixed Peas and Carrots (cans)","Mozzarella (g)","Olives (g)","Onion (g)","Orange Sauce (g)","Pad Thai Rice Noodles (g)","Paneer/Baked Cheese (g)","Panko Crumbs (g)","Parmesan (g)","Pasta Elbows (boxes)","Pasta Penne (boxes)","Pasta Spaghetti (boxes)","Pho Broth (cups)","Pickle Spears (jars)","Pizza (count)","Popcorn Chicken (g)","Pumpkin (g)","Ramen Broth (cups)","Ranch (g)","Red Beans (cans)","Rice (cups)","Sour Cream (g)","Soy Sauce (g)","Spicy Queso (g)","Spinach (g)","Stew Steak (g)","Sweet Corn (cans)","Sweet Peas (cans)","Tapioca Flour (g)","Tomato (g)","Tomato Paste (g)","White Gravy (g)","Yuca (g)","Zucchini (g)","Bertolli Alfredo (jars)"]}
+</script>
+<script>
+(function(){
+  "use strict";
+
+  var DATA = JSON.parse(document.getElementById('recipeData').textContent);
+  var DEFAULT_RECIPES = DATA.recipes;
+  var DEFAULT_GROUPINGS = DATA.groupings;
+  var RECIPES, GROUPINGS;
+  var allRecipeNames = [];
+
+  var REGION_ORDER = ["Produce","Meats","Dairy","Frozen","Sauce","International","Baking/Spice","EXOTIC"];
+  var MAX_MULT = 6;
+
+  var STORE_KEY_SEL = "weeklyHaul.selections.v1";
+  var STORE_KEY_CHK = "weeklyHaul.checked.v1";
+  var STORE_KEY_CUSTOM = "weeklyHaul.customData.v1";
+
+  function loadJSON(key, fallback){
+    try{
+      var raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    }catch(e){ return fallback; }
+  }
+  function saveJSON(key, val){
+    try{ localStorage.setItem(key, JSON.stringify(val)); return true; }catch(e){ return false; }
+  }
+
+  var selections = loadJSON(STORE_KEY_SEL, {});   // { recipeName: multiplier }
+  var checked = loadJSON(STORE_KEY_CHK, {});       // { ingredientFull: true }
+  var customMeta = loadJSON(STORE_KEY_CUSTOM + ".meta", null); // { fileName, uploadedAt, recipeCount }
+
+  function loadActiveData(){
+    var custom = loadJSON(STORE_KEY_CUSTOM, null);
+    if (custom && custom.recipes && Object.keys(custom.recipes).length){
+      RECIPES = custom.recipes;
+      GROUPINGS = custom.groupings || {};
+    } else {
+      RECIPES = DEFAULT_RECIPES;
+      GROUPINGS = DEFAULT_GROUPINGS;
+      customMeta = null;
+    }
+    allRecipeNames = Object.keys(RECIPES);
+    pruneStaleSelections();
+  }
+
+  function pruneStaleSelections(){
+    var changed = false;
+    Object.keys(selections).forEach(function(name){
+      if (!RECIPES[name]) { delete selections[name]; changed = true; }
+    });
+    if (changed) saveJSON(STORE_KEY_SEL, selections);
+  }
+
+  loadActiveData();
+
+  // ---------- helpers ----------
+
+  function humanizeRecipeName(name){
+    return name.replace(/_/g, " ");
+  }
+
+  function splitIngredient(full){
+    var m = full.match(/^(.+)\s\(([^)]+)\)$/);
+    if (m) return { base: m[1], unit: m[2] };
+    return { base: full, unit: "" };
+  }
+
+  var FRACTIONS = [
+    [1/8, "\u215B"], [1/6, "\u2159"], [1/4, "\u00BC"], [1/3, "\u2153"],
+    [3/8, "\u215C"], [1/2, "\u00BD"], [5/8, "\u215D"], [2/3, "\u2154"],
+    [3/4, "\u00BE"], [5/6, "\u215A"], [7/8, "\u215E"]
+  ];
+  var WHOLE_UNITS = { count:1, boxes:1, cans:1, jars:1, buns:1, bunches:1 };
+  var UNIT_LABEL = { ounces:"oz" };
+
+  function formatQty(amount, unit){
+    var label = UNIT_LABEL[unit] || unit;
+    if (WHOLE_UNITS.hasOwnProperty(unit)) {
+      var rounded = Math.round(amount);
+      return rounded + " " + label;
+    }
+    if (unit === "g") {
+      return Math.round(amount) + "g";
+    }
+    var whole = Math.floor(amount + 1e-9);
+    var frac = amount - whole;
+    if (Math.abs(frac) < 0.02) {
+      return whole + " " + label;
+    }
+    var best = null, bestDiff = 0.045;
+    for (var i=0; i<FRACTIONS.length; i++){
+      var diff = Math.abs(frac - FRACTIONS[i][0]);
+      if (diff < bestDiff){ bestDiff = diff; best = FRACTIONS[i][1]; }
+    }
+    if (best) {
+      var wholePart = whole > 0 ? String(whole) : "";
+      return (wholePart + best + " " + label).trim();
+    }
+    var rounded2 = Math.round(amount*100)/100;
+    return rounded2 + " " + label;
+  }
+
+  function regionForIngredient(full){
+    return GROUPINGS[full] || "Other";
+  }
+
+  // ---------- recipe grid ----------
+
+  var recipeGrid = document.getElementById("recipeGrid");
+  var searchInput = document.getElementById("searchInput");
+  var sortSelect = document.getElementById("sortSelect");
+  var resultCount = document.getElementById("resultCount");
+  var emptyState = document.getElementById("emptyState");
+  var emptyQuery = document.getElementById("emptyQuery");
+  var cardTemplate = document.getElementById("recipeCardTemplate");
+
+  function getFilteredSorted(){
+    var q = searchInput.value.trim().toLowerCase();
+    var list = allRecipeNames.filter(function(name){
+      return humanizeRecipeName(name).toLowerCase().indexOf(q) !== -1;
+    });
+    var sortMode = sortSelect.value;
+    if (sortMode === "alpha") {
+      list.sort(function(a,b){ return humanizeRecipeName(a).localeCompare(humanizeRecipeName(b)); });
+    } else if (sortMode === "size") {
+      list.sort(function(a,b){ return Object.keys(RECIPES[b]).length - Object.keys(RECIPES[a]).length; });
+    } else if (sortMode === "selected") {
+      list.sort(function(a,b){
+        var pa = selections[a] ? 1 : 0, pb = selections[b] ? 1 : 0;
+        if (pa !== pb) return pb - pa;
+        return humanizeRecipeName(a).localeCompare(humanizeRecipeName(b));
+      });
+    }
+    return { list: list, query: q };
+  }
+
+  function previewText(name){
+    var ings = Object.keys(RECIPES[name]);
+    var bases = ings.slice(0,3).map(function(i){ return splitIngredient(i).base; });
+    var extra = ings.length - bases.length;
+    var text = bases.join(", ");
+    if (extra > 0) text += ", +" + extra + " more";
+    return text;
+  }
+
+  function renderRecipeGrid(){
+    var result = getFilteredSorted();
+    recipeGrid.innerHTML = "";
+
+    resultCount.textContent = result.list.length + " recipe" + (result.list.length === 1 ? "" : "s") +
+      (result.query ? " matching \u201c" + searchInput.value.trim() + "\u201d" : " available");
+
+    if (result.list.length === 0){
+      emptyState.hidden = false;
+      emptyQuery.textContent = searchInput.value.trim();
+      return;
+    }
+    emptyState.hidden = true;
+
+    result.list.forEach(function(name){
+      var node = cardTemplate.content.cloneNode(true);
+      var card = node.querySelector(".recipe-card");
+      var ingCount = Object.keys(RECIPES[name]).length;
+
+      card.querySelector(".recipe-name").textContent = humanizeRecipeName(name);
+      card.querySelector(".recipe-badge").textContent = ingCount + (ingCount === 1 ? " ingredient" : " ingredients");
+      card.querySelector(".recipe-preview").textContent = previewText(name);
+
+      var pickBtn = card.querySelector(".pick-btn");
+      var stepper = card.querySelector(".stepper");
+      var stepperValue = card.querySelector(".stepper-value");
+
+      function refreshCardState(){
+        var mult = selections[name];
+        if (mult){
+          card.classList.add("is-picked");
+          stepper.hidden = false;
+          stepperValue.textContent = mult + "\u00D7";
+        } else {
+          card.classList.remove("is-picked");
+          stepper.hidden = true;
+        }
+      }
+
+      function pick(){
+        if (!selections[name]) {
+          selections[name] = 1;
+          saveJSON(STORE_KEY_SEL, selections);
+          refreshCardState();
+          onSelectionsChanged();
+        }
+      }
+      function unpick(){
+        if (selections[name]) {
+          delete selections[name];
+          saveJSON(STORE_KEY_SEL, selections);
+          refreshCardState();
+          onSelectionsChanged();
+        }
+      }
+
+      pickBtn.addEventListener("click", function(e){
+        e.stopPropagation();
+        if (selections[name]) unpick(); else pick();
+      });
+      card.addEventListener("click", function(){
+        if (selections[name]) unpick(); else pick();
+      });
+      card.addEventListener("keydown", function(e){
+        if (e.key === "Enter" || e.key === " "){
+          e.preventDefault();
+          if (selections[name]) unpick(); else pick();
+        }
+      });
+
+      stepper.querySelectorAll(".stepper-btn").forEach(function(btn){
+        btn.addEventListener("click", function(e){
+          e.stopPropagation();
+          var dir = parseInt(btn.getAttribute("data-dir"), 10);
+          var cur = selections[name] || 0;
+          var next = cur + dir;
+          if (next <= 0){ unpick(); return; }
+          if (next > MAX_MULT) return;
+          selections[name] = next;
+          saveJSON(STORE_KEY_SEL, selections);
+          refreshCardState();
+          onSelectionsChanged();
+        });
+      });
+
+      refreshCardState();
+      recipeGrid.appendChild(node);
+    });
+  }
+
+  searchInput.addEventListener("input", renderRecipeGrid);
+  sortSelect.addEventListener("change", renderRecipeGrid);
+
+  // ---------- grocery list ----------
+
+  var listBody = document.getElementById("listBody");
+  var listSubtitle = document.getElementById("listSubtitle");
+  var mobileBar = document.getElementById("mobileBar");
+  var mobileBarCount = document.getElementById("mobileBarCount");
+  var mobileBarLabel = document.getElementById("mobileBarLabel");
+  var listPanel = document.getElementById("listPanel");
+  var scrim = document.getElementById("scrim");
+  var sheetClose = document.getElementById("sheetClose");
+
+  function computeAggregate(){
+    var totals = {}; // ingredientFull -> amount
+    var recipeCount = 0;
+    Object.keys(selections).forEach(function(name){
+      var mult = selections[name];
+      if (!mult) return;
+      recipeCount++;
+      var ings = RECIPES[name];
+      Object.keys(ings).forEach(function(full){
+        totals[full] = (totals[full] || 0) + ings[full] * mult;
+      });
+    });
+    return { totals: totals, recipeCount: recipeCount };
+  }
+
+  function renderGroceryList(){
+    var agg = computeAggregate();
+    var totals = agg.totals;
+    var fulls = Object.keys(totals);
+
+    listBody.innerHTML = "";
+
+    if (fulls.length === 0){
+      var empty = document.createElement("p");
+      empty.className = "list-empty";
+      empty.textContent = "Pick some recipes on the left and your list will build itself here.";
+      listBody.appendChild(empty);
+      listSubtitle.textContent = "Nothing picked yet";
+      updateMobileBar(0, 0);
+      return;
+    }
+
+    var byRegion = {};
+    fulls.forEach(function(full){
+      var region = regionForIngredient(full);
+      (byRegion[region] = byRegion[region] || []).push(full);
+    });
+
+    var regionsPresent = Object.keys(byRegion).sort(function(a,b){
+      var ia = REGION_ORDER.indexOf(a); if (ia === -1) ia = 99;
+      var ib = REGION_ORDER.indexOf(b); if (ib === -1) ib = 99;
+      return ia - ib;
+    });
+
+    regionsPresent.forEach(function(region){
+      var items = byRegion[region].slice().sort(function(a,b){
+        return splitIngredient(a).base.localeCompare(splitIngredient(b).base);
+      });
+
+      var group = document.createElement("div");
+      group.className = "region-group";
+
+      var title = document.createElement("p");
+      title.className = "region-title";
+      title.innerHTML = "<span>" + region + "</span><span class=\"region-count\">" + items.length + "</span>";
+      group.appendChild(title);
+
+      items.forEach(function(full){
+        var parts = splitIngredient(full);
+        var row = document.createElement("div");
+        row.className = "item-row" + (checked[full] ? " is-checked" : "");
+
+        var cb = document.createElement("button");
+        cb.className = "item-checkbox";
+        cb.type = "button";
+        cb.setAttribute("aria-label", "Mark " + parts.base + " as gathered");
+        cb.innerHTML = '<svg viewBox="0 0 16 16" width="11" height="11"><path d="M3 8.5 L6.5 12 L13 4" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+        var nameEl = document.createElement("span");
+        nameEl.className = "item-name";
+        nameEl.textContent = parts.base;
+
+        var qtyEl = document.createElement("span");
+        qtyEl.className = "item-qty";
+        qtyEl.textContent = formatQty(totals[full], parts.unit);
+
+        function toggle(){
+          checked[full] = !checked[full];
+          if (!checked[full]) delete checked[full];
+          saveJSON(STORE_KEY_CHK, checked);
+          row.classList.toggle("is-checked");
+        }
+        cb.addEventListener("click", toggle);
+        nameEl.addEventListener("click", toggle);
+
+        row.appendChild(cb);
+        row.appendChild(nameEl);
+        row.appendChild(qtyEl);
+        group.appendChild(row);
+      });
+
+      listBody.appendChild(group);
+    });
+
+    listSubtitle.textContent = fulls.length + " item" + (fulls.length===1?"":"s") + " \u00B7 " +
+      agg.recipeCount + " recipe" + (agg.recipeCount===1?"":"s");
+
+    updateMobileBar(agg.recipeCount, fulls.length);
+  }
+
+  function updateMobileBar(recipeCount, itemCount){
+    if (recipeCount > 0){
+      mobileBar.classList.add("is-visible");
+      mobileBarCount.textContent = recipeCount;
+      mobileBarLabel.textContent = "recipe" + (recipeCount===1?"":"s") + " picked \u2014 " + itemCount + " item" + (itemCount===1?"":"s") + " to grab";
+    } else {
+      mobileBar.classList.remove("is-visible");
+      closeSheet();
+    }
+  }
+
+  function onSelectionsChanged(){
+    renderGroceryList();
+  }
+
+  // ---------- mobile sheet ----------
+
+  function openSheet(){
+    listPanel.classList.add("is-open");
+    scrim.classList.add("is-visible");
+    document.body.classList.add("sheet-open");
+  }
+  function closeSheet(){
+    listPanel.classList.remove("is-open");
+    scrim.classList.remove("is-visible");
+    document.body.classList.remove("sheet-open");
+  }
+
+  mobileBar.addEventListener("click", openSheet);
+  sheetClose.addEventListener("click", closeSheet);
+  scrim.addEventListener("click", closeSheet);
+
+  // ---------- footer actions ----------
+
+  document.getElementById("clearWeekBtn").addEventListener("click", function(){
+    selections = {};
+    checked = {};
+    saveJSON(STORE_KEY_SEL, selections);
+    saveJSON(STORE_KEY_CHK, checked);
+    renderRecipeGrid();
+    renderGroceryList();
+    closeSheet();
+  });
+
+  document.getElementById("uncheckAllBtn").addEventListener("click", function(){
+    checked = {};
+    saveJSON(STORE_KEY_CHK, checked);
+    renderGroceryList();
+  });
+
+  document.getElementById("printBtn").addEventListener("click", function(){
+    window.print();
+  });
+
+  // ---------- update recipes (CSV upload) ----------
+
+  var updateRecipesBtn = document.getElementById("updateRecipesBtn");
+  var updateModal = document.getElementById("updateModal");
+  var modalScrim = document.getElementById("modalScrim");
+  var modalCloseBtn = document.getElementById("modalCloseBtn");
+  var modalCancelBtn = document.getElementById("modalCancelBtn");
+  var modalReplaceBtn = document.getElementById("modalReplaceBtn");
+  var restoreDefaultBtn = document.getElementById("restoreDefaultBtn");
+  var recipesFileInput = document.getElementById("recipesFileInput");
+  var groupingsFileInput = document.getElementById("groupingsFileInput");
+  var modalStatus = document.getElementById("modalStatus");
+  var modalMessage = document.getElementById("modalMessage");
+
+  var pendingRecipesFile = null;
+  var pendingGroupingsFile = null;
+
+  function parseCSV(text){
+    var rows = [];
+    var row = [];
+    var field = "";
+    var inQuotes = false;
+    for (var i = 0; i < text.length; i++){
+      var c = text[i];
+      if (inQuotes){
+        if (c === '"'){
+          if (text[i+1] === '"'){ field += '"'; i++; }
+          else { inQuotes = false; }
+        } else {
+          field += c;
+        }
+      } else {
+        if (c === '"'){ inQuotes = true; }
+        else if (c === ","){ row.push(field); field = ""; }
+        else if (c === "\n"){ row.push(field); rows.push(row); row = []; field = ""; }
+        else if (c === "\r"){ /* skip */ }
+        else { field += c; }
+      }
+    }
+    if (field.length > 0 || row.length > 0){ row.push(field); rows.push(row); }
+    return rows.filter(function(r){ return r.some(function(cell){ return cell.trim() !== ""; }); });
+  }
+
+  function parseAmount(str){
+    str = (str || "").trim();
+    if (!str) return null;
+    if (/^\d+\s*\/\s*\d+$/.test(str)){
+      var parts = str.split("/");
+      var n = parseFloat(parts[0]) / parseFloat(parts[1]);
+      return isNaN(n) ? null : n;
+    }
+    var num = parseFloat(str);
+    return isNaN(num) ? null : num;
+  }
+
+  function parseRecipesCSV(text){
+    var rows = parseCSV(text);
+    if (rows.length < 2) throw new Error("That file doesn't have enough rows to be a recipe sheet.");
+    var header = rows[0].map(function(c){ return c.trim(); });
+    if (header.length < 2) throw new Error("Expected an “Ingredients” column followed by one column per recipe.");
+    var recipeNames = header.slice(1);
+    var recipes = {};
+    recipeNames.forEach(function(n){ if (n) recipes[n] = {}; });
+
+    for (var r = 1; r < rows.length; r++){
+      var row = rows[r];
+      var ingredient = (row[0] || "").trim();
+      if (!ingredient || ingredient.toLowerCase() === "ingredients") continue;
+      for (var c = 1; c < header.length; c++){
+        var recipeName = recipeNames[c-1];
+        if (!recipeName) continue;
+        var amount = parseAmount(row[c]);
+        if (amount !== null && amount !== 0){
+          recipes[recipeName][ingredient] = amount;
+        }
+      }
+    }
+
+    // drop recipes that ended up with no ingredients
+    Object.keys(recipes).forEach(function(name){
+      if (Object.keys(recipes[name]).length === 0) delete recipes[name];
+    });
+
+    if (Object.keys(recipes).length === 0) throw new Error("No recipes with ingredient amounts were found in that file.");
+    return recipes;
+  }
+
+  function parseGroupingsCSV(text){
+    var rows = parseCSV(text);
+    var groupings = {};
+    for (var r = 1; r < rows.length; r++){
+      var row = rows[r];
+      var ingredient = (row[0] || "").trim();
+      var region = (row[1] || "").trim();
+      if (ingredient && region) groupings[ingredient] = region;
+    }
+    return groupings;
+  }
+
+  function showModalMessage(text, kind){
+    modalMessage.hidden = !text;
+    modalMessage.textContent = text || "";
+    modalMessage.className = "modal-message" + (kind ? " is-" + kind : "");
+  }
+
+  function refreshModalStatus(){
+    if (customMeta){
+      modalStatus.textContent = "Currently using your upload: " + customMeta.fileName +
+        " (" + customMeta.recipeCount + " recipes, added " + customMeta.uploadedAt + ")";
+      restoreDefaultBtn.hidden = false;
+    } else {
+      modalStatus.textContent = "Currently using the sample recipe sheet (" + allRecipeNames.length + " recipes).";
+      restoreDefaultBtn.hidden = true;
+    }
+  }
+
+  function openModal(){
+    updateModal.hidden = false;
+    updateModal.classList.add("is-visible");
+    modalScrim.classList.add("is-visible");
+    document.body.classList.add("sheet-open");
+    refreshModalStatus();
+  }
+  function closeModal(){
+    updateModal.classList.remove("is-visible");
+    modalScrim.classList.remove("is-visible");
+    document.body.classList.remove("sheet-open");
+    setTimeout(function(){ updateModal.hidden = true; }, 200);
+    pendingRecipesFile = null;
+    pendingGroupingsFile = null;
+    recipesFileInput.value = "";
+    groupingsFileInput.value = "";
+    showModalMessage("");
+    modalReplaceBtn.disabled = true;
+  }
+
+  updateRecipesBtn.addEventListener("click", openModal);
+  modalCloseBtn.addEventListener("click", closeModal);
+  modalCancelBtn.addEventListener("click", closeModal);
+  modalScrim.addEventListener("click", closeModal);
+
+  recipesFileInput.addEventListener("change", function(){
+    pendingRecipesFile = recipesFileInput.files[0] || null;
+    modalReplaceBtn.disabled = !pendingRecipesFile;
+    showModalMessage("");
+  });
+  groupingsFileInput.addEventListener("change", function(){
+    pendingGroupingsFile = groupingsFileInput.files[0] || null;
+  });
+
+  function readFileAsText(file){
+    return new Promise(function(resolve, reject){
+      var reader = new FileReader();
+      reader.onload = function(){ resolve(reader.result); };
+      reader.onerror = function(){ reject(new Error("Couldn't read " + file.name + ".")); };
+      reader.readAsText(file);
+    });
+  }
+
+  modalReplaceBtn.addEventListener("click", function(){
+    if (!pendingRecipesFile) return;
+    modalReplaceBtn.disabled = true;
+    modalReplaceBtn.textContent = "Reading…";
+    showModalMessage("");
+
+    var readGroupings = pendingGroupingsFile ? readFileAsText(pendingGroupingsFile) : Promise.resolve(null);
+
+    Promise.all([readFileAsText(pendingRecipesFile), readGroupings]).then(function(results){
+      var recipesText = results[0];
+      var groupingsText = results[1];
+
+      var newRecipes = parseRecipesCSV(recipesText);
+
+      var newGroupings = {};
+      Object.keys(GROUPINGS).forEach(function(k){ newGroupings[k] = GROUPINGS[k]; });
+      if (groupingsText){
+        var uploadedGroupings = parseGroupingsCSV(groupingsText);
+        Object.keys(uploadedGroupings).forEach(function(k){ newGroupings[k] = uploadedGroupings[k]; });
+      }
+      // anything new without a known region falls under "Other"
+      Object.keys(newRecipes).forEach(function(recipeName){
+        Object.keys(newRecipes[recipeName]).forEach(function(ingredient){
+          if (!newGroupings[ingredient]) newGroupings[ingredient] = "Other";
+        });
+      });
+
+      RECIPES = newRecipes;
+      GROUPINGS = newGroupings;
+      allRecipeNames = Object.keys(RECIPES);
+      selections = {};
+      checked = {};
+      saveJSON(STORE_KEY_SEL, selections);
+      saveJSON(STORE_KEY_CHK, checked);
+
+      customMeta = {
+        fileName: pendingRecipesFile.name,
+        uploadedAt: new Date().toLocaleDateString(),
+        recipeCount: Object.keys(newRecipes).length
+      };
+      var stored = saveJSON(STORE_KEY_CUSTOM, { recipes: newRecipes, groupings: newGroupings });
+      saveJSON(STORE_KEY_CUSTOM + ".meta", customMeta);
+
+      renderRecipeGrid();
+      renderGroceryList();
+      refreshModalStatus();
+
+      showModalMessage(
+        "Loaded " + customMeta.recipeCount + " recipes from " + customMeta.fileName +
+        (stored ? "." : ". (Your browser wouldn't save this for next time, but it's active now.)"),
+        "success"
+      );
+      pendingRecipesFile = null;
+      pendingGroupingsFile = null;
+      recipesFileInput.value = "";
+      groupingsFileInput.value = "";
+    }).catch(function(err){
+      showModalMessage(err.message || "Something went wrong reading that file.", "error");
+    }).then(function(){
+      modalReplaceBtn.textContent = "Replace recipes";
+      modalReplaceBtn.disabled = !recipesFileInput.files[0];
+    });
+  });
+
+  restoreDefaultBtn.addEventListener("click", function(){
+    try{ localStorage.removeItem(STORE_KEY_CUSTOM); }catch(e){}
+    try{ localStorage.removeItem(STORE_KEY_CUSTOM + ".meta"); }catch(e){}
+    customMeta = null;
+    RECIPES = DEFAULT_RECIPES;
+    GROUPINGS = DEFAULT_GROUPINGS;
+    allRecipeNames = Object.keys(RECIPES);
+    selections = {};
+    checked = {};
+    saveJSON(STORE_KEY_SEL, selections);
+    saveJSON(STORE_KEY_CHK, checked);
+    renderRecipeGrid();
+    renderGroceryList();
+    refreshModalStatus();
+    showModalMessage("Restored the sample recipe sheet.", "success");
+  });
+
+  // ---------- init ----------
+
+  renderRecipeGrid();
+  renderGroceryList();
+
+})();
+
+</script>
+</body>
+</html>
