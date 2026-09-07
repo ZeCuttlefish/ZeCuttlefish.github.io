@@ -1318,6 +1318,14 @@ body.sheet-open{overflow:hidden;}
     if (changed) saveJSON(STORE_KEY_QTY_OVERRIDES, qtyOverrides);
   }
 
+  function pruneStaleChecked(validKeys){
+    var changed = false;
+    Object.keys(checked).forEach(function(k){
+      if (!validKeys[k]) { delete checked[k]; changed = true; }
+    });
+    if (changed) saveJSON(STORE_KEY_CHK, checked);
+  }
+
   function startInlineEdit(hostEl, currentValue, onCommit){
     var input = document.createElement("input");
     input.type = "text";
@@ -1345,6 +1353,11 @@ body.sheet-open{overflow:hidden;}
     var totals = agg.totals;
     var fulls = Object.keys(totals);
     pruneStaleOverrides(totals);
+
+    var validKeys = {};
+    fulls.forEach(function(full){ validKeys[full] = true; });
+    customItems.forEach(function(item){ validKeys["custom:" + item.id] = true; });
+    pruneStaleChecked(validKeys);
 
     listBody.innerHTML = "";
 
@@ -1621,28 +1634,38 @@ body.sheet-open{overflow:hidden;}
   var shareBannerText = document.getElementById("shareBannerText");
   var shareApplyBtn = document.getElementById("shareApplyBtn");
   var shareDismissBtn = document.getElementById("shareDismissBtn");
-  var pendingSharedSelections = null;
+  var pendingShared = null; // { selections, customItems, checkedKeys, overrides }
 
-  function buildShareValue(sel){
-    return Object.keys(sel).map(function(n){ return n + ":" + sel[n]; }).join(",");
+  function buildSharePayload(){
+    var payload = {};
+    if (Object.keys(selections).length) payload.s = selections;
+    if (customItems.length){
+      payload.c = customItems.map(function(i){
+        return { id: i.id, name: i.name, qty: i.qty, region: i.region };
+      });
+    }
+    var checkedKeys = Object.keys(checked).filter(function(k){ return checked[k]; });
+    if (checkedKeys.length) payload.k = checkedKeys;
+    if (Object.keys(qtyOverrides).length) payload.o = qtyOverrides;
+    return payload;
   }
-  function parseShareValue(str){
-    var result = {};
-    str.split(",").forEach(function(part){
-      var bits = part.split(":");
-      if (bits.length !== 2) return;
-      var name = bits[0];
-      var mult = parseInt(bits[1], 10);
-      if (name && mult > 0 && mult <= MAX_MULT) result[name] = mult;
-    });
-    return result;
+
+  function hasShareablePayload(){
+    return Object.keys(selections).length > 0 ||
+      customItems.length > 0 ||
+      Object.keys(checked).some(function(k){ return checked[k]; }) ||
+      Object.keys(qtyOverrides).length > 0;
   }
+
   function buildShareUrl(){
-    var val = buildShareValue(selections);
+    var payload = buildSharePayload();
     var url = location.origin + location.pathname;
-    if (val) url += "?week=" + encodeURIComponent(val);
+    if (Object.keys(payload).length){
+      url += "?week=" + encodeURIComponent(JSON.stringify(payload));
+    }
     return url;
   }
+
   function stripShareParam(){
     try{
       var url = new URL(location.href);
@@ -1654,29 +1677,42 @@ body.sheet-open{overflow:hidden;}
 
   if (shareBtn){
     shareBtn.addEventListener("click", function(){
-      if (Object.keys(selections).length === 0){
-        showSyncBanner("Pick some recipes first \u2014 nothing to share yet.", "error", true);
+      if (!hasShareablePayload()){
+        showSyncBanner("Add or pick something first \u2014 nothing to share yet.", "error", true);
         return;
       }
       var url = buildShareUrl();
       if (navigator.share){
-        navigator.share({ title: "This week's menu", url: url }).catch(function(){});
+        navigator.share({ title: "This week's grocery list", url: url }).catch(function(){});
         return;
       }
       if (navigator.clipboard && navigator.clipboard.writeText){
         navigator.clipboard.writeText(url).then(function(){
           showSyncBanner("Link copied to your clipboard.", "success", true);
         }).catch(function(){
-          window.prompt("Copy this link to share your picks:", url);
+          window.prompt("Copy this link to share your list:", url);
         });
       } else {
-        window.prompt("Copy this link to share your picks:", url);
+        window.prompt("Copy this link to share your list:", url);
       }
     });
   }
 
-  function showShareBanner(count){
-    shareBannerText.textContent = "This link includes a shared menu (" + count + " recipe" + (count===1?"":"s") + "). Load it?";
+  function describeSharedPayload(p){
+    var parts = [];
+    var selCount = Object.keys(p.selections).length;
+    if (selCount) parts.push(selCount + " recipe" + (selCount===1?"":"s"));
+    if (p.customItems.length) parts.push(p.customItems.length + " custom item" + (p.customItems.length===1?"":"s"));
+    if (p.checkedKeys.length) parts.push("checked-off progress");
+    if (Object.keys(p.overrides).length) parts.push("adjusted amounts");
+    if (parts.length === 0) return "a shared list";
+    if (parts.length === 1) return parts[0];
+    if (parts.length === 2) return parts[0] + " and " + parts[1];
+    return parts.slice(0, -1).join(", ") + ", and " + parts[parts.length - 1];
+  }
+
+  function showShareBanner(p){
+    shareBannerText.textContent = "This link includes " + describeSharedPayload(p) + ". Load it?";
     shareBanner.hidden = false;
     requestAnimationFrame(function(){ shareBanner.classList.add("is-visible"); });
   }
@@ -1687,22 +1723,44 @@ body.sheet-open{overflow:hidden;}
 
   if (shareApplyBtn){
     shareApplyBtn.addEventListener("click", function(){
-      if (pendingSharedSelections){
-        selections = pendingSharedSelections;
+      if (pendingShared){
+        selections = pendingShared.selections;
+        customItems = pendingShared.customItems;
+
+        var customKeys = {};
+        customItems.forEach(function(i){ customKeys["custom:" + i.id] = true; });
+        var recipeKeys = {};
+        Object.keys(RECIPES).forEach(function(name){
+          if (!selections[name]) return;
+          Object.keys(RECIPES[name]).forEach(function(full){ recipeKeys[full] = true; });
+        });
         checked = {};
+        pendingShared.checkedKeys.forEach(function(k){
+          if (recipeKeys[k] || customKeys[k]) checked[k] = true;
+        });
+
+        qtyOverrides = {};
+        Object.keys(pendingShared.overrides).forEach(function(k){
+          var v = pendingShared.overrides[k];
+          if (recipeKeys[k] && typeof v === "string" && v) qtyOverrides[k] = v;
+        });
+
         saveJSON(STORE_KEY_SEL, selections);
+        saveJSON(STORE_KEY_CUSTOM_ITEMS, customItems);
         saveJSON(STORE_KEY_CHK, checked);
+        saveJSON(STORE_KEY_QTY_OVERRIDES, qtyOverrides);
+
         renderRecipeGrid();
         renderGroceryList();
       }
-      pendingSharedSelections = null;
+      pendingShared = null;
       hideShareBanner();
       stripShareParam();
     });
   }
   if (shareDismissBtn){
     shareDismissBtn.addEventListener("click", function(){
-      pendingSharedSelections = null;
+      pendingShared = null;
       hideShareBanner();
       stripShareParam();
     });
@@ -1713,12 +1771,46 @@ body.sheet-open{overflow:hidden;}
     try{ params = new URLSearchParams(location.search); }catch(e){ return; }
     var weekParam = params.get("week");
     if (!weekParam) return;
-    var parsed = parseShareValue(weekParam);
-    var validNames = Object.keys(parsed).filter(function(n){ return RECIPES[n]; });
-    if (validNames.length === 0){ stripShareParam(); return; }
-    pendingSharedSelections = {};
-    validNames.forEach(function(n){ pendingSharedSelections[n] = parsed[n]; });
-    showShareBanner(validNames.length);
+
+    var payload;
+    try{ payload = JSON.parse(weekParam); }catch(e){ stripShareParam(); return; }
+    if (!payload || typeof payload !== "object"){ stripShareParam(); return; }
+
+    var rawSel = (payload.s && typeof payload.s === "object") ? payload.s : {};
+    var validSel = {};
+    Object.keys(rawSel).forEach(function(n){
+      var mult = parseInt(rawSel[n], 10);
+      if (RECIPES[n] && mult > 0 && mult <= MAX_MULT) validSel[n] = mult;
+    });
+
+    var rawCustom = Array.isArray(payload.c) ? payload.c : [];
+    var validCustom = rawCustom.filter(function(i){
+      return i && typeof i.name === "string" && i.name.trim();
+    }).map(function(i){
+      return {
+        id: (typeof i.id === "string" && i.id) ? i.id : makeCustomId(),
+        name: String(i.name).trim().slice(0, 60),
+        qty: typeof i.qty === "string" ? i.qty.slice(0, 24) : "",
+        region: (typeof i.region === "string" && i.region.trim()) ? i.region.trim() : "Other"
+      };
+    });
+
+    var checkedKeys = Array.isArray(payload.k) ? payload.k.filter(function(k){ return typeof k === "string"; }) : [];
+    var overrides = (payload.o && typeof payload.o === "object") ? payload.o : {};
+
+    var totalCount = Object.keys(validSel).length + validCustom.length;
+    if (totalCount === 0 && checkedKeys.length === 0 && Object.keys(overrides).length === 0){
+      stripShareParam();
+      return;
+    }
+
+    pendingShared = {
+      selections: validSel,
+      customItems: validCustom,
+      checkedKeys: checkedKeys,
+      overrides: overrides
+    };
+    showShareBanner(pendingShared);
   }
 
   // ---------- update recipes (CSV upload) ----------
