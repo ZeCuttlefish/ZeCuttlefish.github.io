@@ -637,6 +637,61 @@ body.sheet-open{overflow:hidden;}
   color:var(--ink-soft);
   cursor:not-allowed;
 }
+.primary-btn-block{width:100%;}
+
+.manual-upload{
+  margin-top:16px;
+  padding-top:14px;
+  border-top:1px solid var(--line);
+}
+.manual-upload summary{
+  cursor:pointer;
+  font-size:.82rem;
+  color:var(--ink-soft);
+  font-weight:600;
+  list-style:none;
+}
+.manual-upload summary::-webkit-details-marker{display:none;}
+.manual-upload summary::before{
+  content:"\25B8";
+  display:inline-block;
+  margin-right:6px;
+  transition:transform .15s ease;
+}
+.manual-upload[open] summary::before{transform:rotate(90deg);}
+.manual-upload .file-field{margin-top:14px;}
+.manual-upload .ghost-btn{margin-top:12px;}
+
+/* ---------- Sync banner (toast) ---------- */
+.sync-banner{
+  position:fixed;
+  top:14px;
+  left:50%;
+  z-index:50;
+  max-width:90vw;
+  background:var(--pine-950);
+  color:var(--paper);
+  padding:9px 16px;
+  border-radius:var(--radius-pill);
+  font-size:.8rem;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  box-shadow:0 8px 24px rgba(24,38,32,.32);
+  opacity:0;
+  transform:translate(-50%,-8px);
+  transition:opacity .22s ease, transform .22s ease;
+  pointer-events:none;
+}
+.sync-banner.is-visible{opacity:1; transform:translate(-50%,0);}
+.sync-dot{
+  width:7px; height:7px;
+  border-radius:50%;
+  background:var(--mustard-light);
+  flex-shrink:0;
+}
+.sync-banner.is-error .sync-dot{background:#E08466;}
+.sync-banner.is-success .sync-dot{background:#8FCB8F;}
 
 /* ---------- Print ---------- */
 @media print{
@@ -740,7 +795,7 @@ body.sheet-open{overflow:hidden;}
 <div class="modal-scrim" id="modalScrim"></div>
 <div class="modal" id="updateModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" hidden>
   <div class="modal-head">
-    <h2 id="modalTitle">Update your recipe sheet</h2>
+    <h2 id="modalTitle">Recipe source</h2>
     <button class="sheet-close" id="modalCloseBtn" type="button" aria-label="Close">
       <svg viewBox="0 0 20 20" width="18" height="18"><path d="M4 4 L16 16 M16 4 L4 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
     </button>
@@ -749,17 +804,25 @@ body.sheet-open{overflow:hidden;}
   <p class="modal-status" id="modalStatus"></p>
 
   <div class="modal-body">
-    <label class="file-field">
-      <span class="file-field-label">Recipes CSV <em>required</em></span>
-      <input type="file" id="recipesFileInput" accept=".csv,text/csv">
-    </label>
-    <p class="file-hint">Same layout as before: first column “Ingredients”, then one column per recipe, with amounts filled in below.</p>
+    <button class="primary-btn primary-btn-block" id="checkNowBtn" type="button">Check CSV files for updates</button>
 
-    <label class="file-field">
-      <span class="file-field-label">Groupings CSV <em>optional</em></span>
-      <input type="file" id="groupingsFileInput" accept=".csv,text/csv">
-    </label>
-    <p class="file-hint">Two columns: “Ingredients” and “Region”. Skip this to keep your current aisle groupings — brand-new ingredients will land under “Other” until grouped.</p>
+    <details class="manual-upload">
+      <summary>Or upload CSV files manually</summary>
+      <label class="file-field">
+        <span class="file-field-label">Recipes CSV <em>required</em></span>
+        <input type="file" id="recipesFileInput" accept=".csv,text/csv">
+      </label>
+      <p class="file-hint">Same layout as before: first column “Ingredients”, then one column per recipe, with amounts filled in below.</p>
+
+      <label class="file-field">
+        <span class="file-field-label">Groupings CSV <em>optional</em></span>
+        <input type="file" id="groupingsFileInput" accept=".csv,text/csv">
+      </label>
+      <p class="file-hint">Two columns: “Ingredients” and “Region”. Skip this to keep current aisle groupings — brand-new ingredients land under “Other” until grouped.</p>
+      <p class="file-hint">Note: the next successful check of the CSV files on GitHub will replace a manual upload.</p>
+
+      <button class="ghost-btn" id="modalReplaceBtn" type="button" disabled>Use these files</button>
+    </details>
 
     <p class="modal-message" id="modalMessage" hidden></p>
   </div>
@@ -767,10 +830,14 @@ body.sheet-open{overflow:hidden;}
   <div class="modal-foot">
     <button class="text-btn" id="restoreDefaultBtn" type="button" hidden>Restore sample recipes</button>
     <div class="modal-foot-actions">
-      <button class="ghost-btn" id="modalCancelBtn" type="button">Cancel</button>
-      <button class="primary-btn" id="modalReplaceBtn" type="button" disabled>Replace recipes</button>
+      <button class="ghost-btn" id="modalCancelBtn" type="button">Close</button>
     </div>
   </div>
+</div>
+
+<div class="sync-banner" id="syncBanner" hidden>
+  <span class="sync-dot" aria-hidden="true"></span>
+  <span id="syncBannerText"></span>
 </div>
 
 <template id="recipeCardTemplate">
@@ -809,9 +876,19 @@ body.sheet-open{overflow:hidden;}
   var REGION_ORDER = ["Produce","Meats","Dairy","Frozen","Sauce","International","Baking/Spice","EXOTIC"];
   var MAX_MULT = 6;
 
+  // CSV files published alongside this HTML file (same GitHub Pages directory).
+  // Rename these if your actual filenames differ once uploaded.
+  var DATA_URLS = {
+    recipes: "Food_R_Sheet_-_NewBuy.csv",
+    groupings: "Food_R_Sheet_-_Groupings.csv"
+  };
+  var SYNC_MIN_INTERVAL_MS = 60000; // don't re-check more than once a minute on tab focus
+
   var STORE_KEY_SEL = "weeklyHaul.selections.v1";
   var STORE_KEY_CHK = "weeklyHaul.checked.v1";
   var STORE_KEY_CUSTOM = "weeklyHaul.customData.v1";
+  var STORE_KEY_META = "weeklyHaul.dataMeta.v1";
+  var STORE_KEY_SYNC_RAW = "weeklyHaul.syncRaw.v1";
 
   function loadJSON(key, fallback){
     try{
@@ -825,7 +902,9 @@ body.sheet-open{overflow:hidden;}
 
   var selections = loadJSON(STORE_KEY_SEL, {});   // { recipeName: multiplier }
   var checked = loadJSON(STORE_KEY_CHK, {});       // { ingredientFull: true }
-  var customMeta = loadJSON(STORE_KEY_CUSTOM + ".meta", null); // { fileName, uploadedAt, recipeCount }
+  // dataMeta: { source: 'csv'|'manual', recipeCount, syncedAt (ms) | uploadedAt (string), fileName? }
+  var dataMeta = loadJSON(STORE_KEY_META, null);
+  var lastSyncCheckAt = 0;
 
   function loadActiveData(){
     var custom = loadJSON(STORE_KEY_CUSTOM, null);
@@ -835,7 +914,7 @@ body.sheet-open{overflow:hidden;}
     } else {
       RECIPES = DEFAULT_RECIPES;
       GROUPINGS = DEFAULT_GROUPINGS;
-      customMeta = null;
+      dataMeta = null;
     }
     allRecipeNames = Object.keys(RECIPES);
     pruneStaleSelections();
@@ -1304,13 +1383,21 @@ body.sheet-open{overflow:hidden;}
     modalMessage.className = "modal-message" + (kind ? " is-" + kind : "");
   }
 
+  function formatTime(ms){
+    try{ return new Date(ms).toLocaleString([], {month:"short", day:"numeric", hour:"numeric", minute:"2-digit"}); }
+    catch(e){ return ""; }
+  }
+
   function refreshModalStatus(){
-    if (customMeta){
-      modalStatus.textContent = "Currently using your upload: " + customMeta.fileName +
-        " (" + customMeta.recipeCount + " recipes, added " + customMeta.uploadedAt + ")";
+    if (dataMeta && dataMeta.source === "manual"){
+      modalStatus.textContent = "Using a manually uploaded file: " + dataMeta.fileName +
+        " (" + dataMeta.recipeCount + " recipes, added " + dataMeta.uploadedAt + "). The next successful file check will replace this.";
+      restoreDefaultBtn.hidden = false;
+    } else if (dataMeta && dataMeta.source === "csv"){
+      modalStatus.textContent = "Synced with your CSV files \u00B7 " + dataMeta.recipeCount + " recipes \u00B7 last updated " + formatTime(dataMeta.syncedAt) + ".";
       restoreDefaultBtn.hidden = false;
     } else {
-      modalStatus.textContent = "Currently using the sample recipe sheet (" + allRecipeNames.length + " recipes).";
+      modalStatus.textContent = "Using the built-in sample recipes (" + allRecipeNames.length + "). Checking your CSV files now\u2026";
       restoreDefaultBtn.hidden = true;
     }
   }
@@ -1358,10 +1445,18 @@ body.sheet-open{overflow:hidden;}
     });
   }
 
+  function applyGroupingFallback(newRecipes, newGroupings){
+    Object.keys(newRecipes).forEach(function(recipeName){
+      Object.keys(newRecipes[recipeName]).forEach(function(ingredient){
+        if (!newGroupings[ingredient]) newGroupings[ingredient] = "Other";
+      });
+    });
+  }
+
   modalReplaceBtn.addEventListener("click", function(){
     if (!pendingRecipesFile) return;
     modalReplaceBtn.disabled = true;
-    modalReplaceBtn.textContent = "Reading…";
+    modalReplaceBtn.textContent = "Reading\u2026";
     showModalMessage("");
 
     var readGroupings = pendingGroupingsFile ? readFileAsText(pendingGroupingsFile) : Promise.resolve(null);
@@ -1378,12 +1473,7 @@ body.sheet-open{overflow:hidden;}
         var uploadedGroupings = parseGroupingsCSV(groupingsText);
         Object.keys(uploadedGroupings).forEach(function(k){ newGroupings[k] = uploadedGroupings[k]; });
       }
-      // anything new without a known region falls under "Other"
-      Object.keys(newRecipes).forEach(function(recipeName){
-        Object.keys(newRecipes[recipeName]).forEach(function(ingredient){
-          if (!newGroupings[ingredient]) newGroupings[ingredient] = "Other";
-        });
-      });
+      applyGroupingFallback(newRecipes, newGroupings);
 
       RECIPES = newRecipes;
       GROUPINGS = newGroupings;
@@ -1393,20 +1483,21 @@ body.sheet-open{overflow:hidden;}
       saveJSON(STORE_KEY_SEL, selections);
       saveJSON(STORE_KEY_CHK, checked);
 
-      customMeta = {
+      dataMeta = {
+        source: "manual",
         fileName: pendingRecipesFile.name,
         uploadedAt: new Date().toLocaleDateString(),
         recipeCount: Object.keys(newRecipes).length
       };
       var stored = saveJSON(STORE_KEY_CUSTOM, { recipes: newRecipes, groupings: newGroupings });
-      saveJSON(STORE_KEY_CUSTOM + ".meta", customMeta);
+      saveJSON(STORE_KEY_META, dataMeta);
 
       renderRecipeGrid();
       renderGroceryList();
       refreshModalStatus();
 
       showModalMessage(
-        "Loaded " + customMeta.recipeCount + " recipes from " + customMeta.fileName +
+        "Loaded " + dataMeta.recipeCount + " recipes from " + dataMeta.fileName +
         (stored ? "." : ". (Your browser wouldn't save this for next time, but it's active now.)"),
         "success"
       );
@@ -1417,15 +1508,16 @@ body.sheet-open{overflow:hidden;}
     }).catch(function(err){
       showModalMessage(err.message || "Something went wrong reading that file.", "error");
     }).then(function(){
-      modalReplaceBtn.textContent = "Replace recipes";
+      modalReplaceBtn.textContent = "Use these files";
       modalReplaceBtn.disabled = !recipesFileInput.files[0];
     });
   });
 
   restoreDefaultBtn.addEventListener("click", function(){
     try{ localStorage.removeItem(STORE_KEY_CUSTOM); }catch(e){}
-    try{ localStorage.removeItem(STORE_KEY_CUSTOM + ".meta"); }catch(e){}
-    customMeta = null;
+    try{ localStorage.removeItem(STORE_KEY_META); }catch(e){}
+    try{ localStorage.removeItem(STORE_KEY_SYNC_RAW); }catch(e){}
+    dataMeta = null;
     RECIPES = DEFAULT_RECIPES;
     GROUPINGS = DEFAULT_GROUPINGS;
     allRecipeNames = Object.keys(RECIPES);
@@ -1436,13 +1528,117 @@ body.sheet-open{overflow:hidden;}
     renderRecipeGrid();
     renderGroceryList();
     refreshModalStatus();
-    showModalMessage("Restored the sample recipe sheet.", "success");
+    showModalMessage("Restored the built-in sample recipes.", "success");
+  });
+
+  // ---------- CSV file sync (same-directory GitHub Pages files) ----------
+
+  var syncBanner = document.getElementById("syncBanner");
+  var syncBannerText = document.getElementById("syncBannerText");
+  var checkNowBtn = document.getElementById("checkNowBtn");
+  var syncBannerTimer = null;
+  var syncInFlight = false;
+
+  function showSyncBanner(text, kind, autoHide){
+    clearTimeout(syncBannerTimer);
+    syncBanner.hidden = false;
+    syncBannerText.textContent = text;
+    syncBanner.className = "sync-banner" + (kind ? " is-" + kind : "");
+    requestAnimationFrame(function(){ syncBanner.classList.add("is-visible"); });
+    if (autoHide){
+      syncBannerTimer = setTimeout(hideSyncBanner, 3400);
+    }
+  }
+  function hideSyncBanner(){
+    syncBanner.classList.remove("is-visible");
+    setTimeout(function(){ syncBanner.hidden = true; }, 250);
+  }
+
+  function fetchText(url){
+    var bust = (url.indexOf("?") === -1 ? "?" : "&") + "_=" + Date.now();
+    return fetch(url + bust, { method: "GET", cache: "no-store" }).then(function(res){
+      if (!res.ok) throw new Error("Server returned " + res.status + " for " + url);
+      return res.text();
+    });
+  }
+
+  function runFileSync(opts){
+    opts = opts || {};
+    if (syncInFlight) return Promise.resolve({ skipped: true });
+    syncInFlight = true;
+    lastSyncCheckAt = Date.now();
+    if (checkNowBtn){ checkNowBtn.disabled = true; checkNowBtn.textContent = "Checking\u2026"; }
+    showSyncBanner("Checking your CSV files for updates\u2026", "info", false);
+
+    return Promise.all([fetchText(DATA_URLS.recipes), fetchText(DATA_URLS.groupings)])
+      .then(function(results){
+        var recipesText = results[0], groupingsText = results[1];
+        var lastRaw = loadJSON(STORE_KEY_SYNC_RAW, null);
+        var isFirstSync = !lastRaw;
+        var changed = isFirstSync || lastRaw.recipesText !== recipesText || lastRaw.groupingsText !== groupingsText;
+
+        saveJSON(STORE_KEY_SYNC_RAW, { recipesText: recipesText, groupingsText: groupingsText });
+
+        if (!changed){
+          showSyncBanner("Recipes are already up to date.", "success", true);
+          return { changed: false };
+        }
+
+        var newRecipes = parseRecipesCSV(recipesText);
+        var newGroupings = parseGroupingsCSV(groupingsText);
+        applyGroupingFallback(newRecipes, newGroupings);
+
+        RECIPES = newRecipes;
+        GROUPINGS = newGroupings;
+        allRecipeNames = Object.keys(RECIPES);
+        pruneStaleSelections();
+
+        saveJSON(STORE_KEY_CUSTOM, { recipes: newRecipes, groupings: newGroupings });
+        dataMeta = {
+          source: "csv",
+          recipeCount: Object.keys(newRecipes).length,
+          syncedAt: Date.now()
+        };
+        saveJSON(STORE_KEY_META, dataMeta);
+
+        renderRecipeGrid();
+        renderGroceryList();
+        refreshModalStatus();
+
+        showSyncBanner(
+          isFirstSync
+            ? "Connected to your CSV files \u2014 " + dataMeta.recipeCount + " recipes loaded."
+            : "Recipes updated from your CSV files.",
+          "success", true
+        );
+        return { changed: true };
+      })
+      .catch(function(err){
+        showSyncBanner("Couldn't load the CSV files \u2014 using the last saved recipes.", "error", true);
+        return { error: err };
+      })
+      .then(function(result){
+        syncInFlight = false;
+        if (checkNowBtn){ checkNowBtn.disabled = false; checkNowBtn.textContent = "Check CSV files for updates"; }
+        return result;
+      });
+  }
+
+  if (checkNowBtn){
+    checkNowBtn.addEventListener("click", function(){ runFileSync({ manual: true }); });
+  }
+
+  document.addEventListener("visibilitychange", function(){
+    if (document.visibilityState === "visible" && (Date.now() - lastSyncCheckAt) > SYNC_MIN_INTERVAL_MS){
+      runFileSync({});
+    }
   });
 
   // ---------- init ----------
 
   renderRecipeGrid();
   renderGroceryList();
+  runFileSync({});
 
 })();
 
