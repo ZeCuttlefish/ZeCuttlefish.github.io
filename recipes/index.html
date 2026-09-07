@@ -544,17 +544,18 @@ input,select{font-family:inherit;}
 /* ---------- Mobile bottom bar ---------- */
 .mobile-bar{
   position:fixed;
-  left:16px; right:16px; bottom:16px;
+  left:14px; right:14px; bottom:14px;
   z-index:30;
   background:var(--pine-950);
   color:var(--paper);
   border:none;
   border-radius:var(--radius-pill);
-  padding:13px 18px;
+  padding:16px 20px;
   display:flex;
   align-items:center;
-  gap:10px;
-  box-shadow:0 8px 24px rgba(24,38,32,.35);
+  gap:12px;
+  min-height:56px;
+  box-shadow:0 10px 28px rgba(24,38,32,.4);
   cursor:pointer;
   transform:translateY(120%);
   transition:transform .25s ease;
@@ -564,18 +565,25 @@ input,select{font-family:inherit;}
   background:var(--mustard-light);
   color:var(--pine-950);
   font-weight:700;
-  font-size:.82rem;
-  width:24px; height:24px;
+  font-size:.92rem;
+  width:30px; height:30px;
   border-radius:50%;
   display:flex; align-items:center; justify-content:center;
   flex-shrink:0;
 }
+.mobile-bar-count[hidden]{display:none;}
 .mobile-bar-label{
-  font-size:.86rem;
+  font-size:1rem;
+  font-weight:600;
   flex:1;
   text-align:left;
+  line-height:1.3;
 }
-.mobile-bar svg{flex-shrink:0;}
+.mobile-bar svg{flex-shrink:0; width:18px; height:18px;}
+
+@media (min-width:900px){
+  .mobile-bar{display:none !important;}
+}
 
 .scrim{
   display:none;
@@ -1533,15 +1541,16 @@ body.sheet-open{overflow:hidden;}
   }
 
   function updateMobileBar(recipeCount, itemCount){
+    mobileBar.classList.add("is-visible");
     if (itemCount > 0){
-      mobileBar.classList.add("is-visible");
+      mobileBarCount.hidden = false;
       mobileBarCount.textContent = itemCount;
       mobileBarLabel.textContent = recipeCount > 0
         ? recipeCount + " recipe" + (recipeCount===1?"":"s") + " picked \u2014 " + itemCount + " item" + (itemCount===1?"":"s") + " to grab"
         : itemCount + " item" + (itemCount===1?"":"s") + " on your list";
     } else {
-      mobileBar.classList.remove("is-visible");
-      closeSheet();
+      mobileBarCount.hidden = true;
+      mobileBarLabel.textContent = "Open grocery list \u2014 add an item";
     }
   }
 
@@ -1636,13 +1645,66 @@ body.sheet-open{overflow:hidden;}
   var shareDismissBtn = document.getElementById("shareDismissBtn");
   var pendingShared = null; // { selections, customItems, checkedKeys, overrides }
 
+  // --- compact, URL-safe encoding for the share link ---
+  // Format: "g<base64url-gzip>" when gzip compression helps and is supported,
+  // otherwise "p<base64url-plain>". No percent-encoding needed either way.
+
+  function bytesToBase64Url(bytes){
+    var binary = "";
+    for (var i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+    var b64 = btoa(binary);
+    return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+  function base64UrlToBytes(b64url){
+    var b64 = b64url.replace(/-/g, "+").replace(/_/g, "/");
+    while (b64.length % 4) b64 += "=";
+    var binary = atob(b64);
+    var bytes = new Uint8Array(binary.length);
+    for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return bytes;
+  }
+  function gzipBytes(bytes){
+    var cs = new CompressionStream("gzip");
+    var writer = cs.writable.getWriter();
+    writer.write(bytes);
+    writer.close();
+    return new Response(cs.readable).arrayBuffer().then(function(buf){ return new Uint8Array(buf); });
+  }
+  function gunzipBytes(bytes){
+    var ds = new DecompressionStream("gzip");
+    var writer = ds.writable.getWriter();
+    writer.write(bytes);
+    writer.close();
+    return new Response(ds.readable).arrayBuffer().then(function(buf){ return new Uint8Array(buf); });
+  }
+  function compressToParam(str){
+    var rawBytes = new TextEncoder().encode(str);
+    var plain = "p" + bytesToBase64Url(rawBytes);
+    if (typeof CompressionStream !== "function") return Promise.resolve(plain);
+    return gzipBytes(rawBytes).then(function(gz){
+      var gzipped = "g" + bytesToBase64Url(gz);
+      return gzipped.length < plain.length ? gzipped : plain;
+    }).catch(function(){ return plain; });
+  }
+  function decompressFromParam(param){
+    if (!param) return Promise.reject(new Error("empty share param"));
+    var marker = param.charAt(0);
+    var bytes;
+    try{ bytes = base64UrlToBytes(param.slice(1)); }
+    catch(e){ return Promise.reject(e); }
+    if (marker === "g"){
+      if (typeof DecompressionStream !== "function") return Promise.reject(new Error("gzip unsupported in this browser"));
+      return gunzipBytes(bytes).then(function(out){ return new TextDecoder().decode(out); });
+    }
+    return Promise.resolve(new TextDecoder().decode(bytes));
+  }
+
   function buildSharePayload(){
     var payload = {};
     if (Object.keys(selections).length) payload.s = selections;
     if (customItems.length){
-      payload.c = customItems.map(function(i){
-        return { id: i.id, name: i.name, qty: i.qty, region: i.region };
-      });
+      // tuples instead of objects to avoid repeating key names per item
+      payload.c = customItems.map(function(i){ return [i.id, i.name, i.qty || "", i.region || "Other"]; });
     }
     var checkedKeys = Object.keys(checked).filter(function(k){ return checked[k]; });
     if (checkedKeys.length) payload.k = checkedKeys;
@@ -1659,17 +1721,17 @@ body.sheet-open{overflow:hidden;}
 
   function buildShareUrl(){
     var payload = buildSharePayload();
-    var url = location.origin + location.pathname;
-    if (Object.keys(payload).length){
-      url += "?week=" + encodeURIComponent(JSON.stringify(payload));
-    }
-    return url;
+    var base = location.origin + location.pathname;
+    if (Object.keys(payload).length === 0) return Promise.resolve(base);
+    return compressToParam(JSON.stringify(payload)).then(function(param){
+      return base + "?w=" + param;
+    });
   }
 
   function stripShareParam(){
     try{
       var url = new URL(location.href);
-      url.searchParams.delete("week");
+      url.searchParams.delete("w");
       var qs = url.searchParams.toString();
       history.replaceState({}, "", url.pathname + (qs ? "?" + qs : "") + url.hash);
     }catch(e){ /* ignore */ }
@@ -1681,20 +1743,24 @@ body.sheet-open{overflow:hidden;}
         showSyncBanner("Add or pick something first \u2014 nothing to share yet.", "error", true);
         return;
       }
-      var url = buildShareUrl();
-      if (navigator.share){
-        navigator.share({ title: "This week's grocery list", url: url }).catch(function(){});
-        return;
-      }
-      if (navigator.clipboard && navigator.clipboard.writeText){
-        navigator.clipboard.writeText(url).then(function(){
-          showSyncBanner("Link copied to your clipboard.", "success", true);
-        }).catch(function(){
-          window.prompt("Copy this link to share your list:", url);
-        });
-      } else {
+      shareBtn.disabled = true;
+      buildShareUrl().then(function(url){
+        if (navigator.share){
+          return navigator.share({ title: "This week's grocery list", url: url }).catch(function(){});
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText){
+          return navigator.clipboard.writeText(url).then(function(){
+            showSyncBanner("Link copied to your clipboard.", "success", true);
+          }).catch(function(){
+            window.prompt("Copy this link to share your list:", url);
+          });
+        }
         window.prompt("Copy this link to share your list:", url);
-      }
+      }).catch(function(){
+        showSyncBanner("Couldn't create a share link.", "error", true);
+      }).then(function(){
+        shareBtn.disabled = false;
+      });
     });
   }
 
@@ -1769,48 +1835,53 @@ body.sheet-open{overflow:hidden;}
   function checkForSharedWeek(){
     var params;
     try{ params = new URLSearchParams(location.search); }catch(e){ return; }
-    var weekParam = params.get("week");
-    if (!weekParam) return;
+    var param = params.get("w");
+    if (!param) return;
 
-    var payload;
-    try{ payload = JSON.parse(weekParam); }catch(e){ stripShareParam(); return; }
-    if (!payload || typeof payload !== "object"){ stripShareParam(); return; }
+    decompressFromParam(param).then(function(json){
+      var payload;
+      try{ payload = JSON.parse(json); }catch(e){ stripShareParam(); return; }
+      if (!payload || typeof payload !== "object"){ stripShareParam(); return; }
 
-    var rawSel = (payload.s && typeof payload.s === "object") ? payload.s : {};
-    var validSel = {};
-    Object.keys(rawSel).forEach(function(n){
-      var mult = parseInt(rawSel[n], 10);
-      if (RECIPES[n] && mult > 0 && mult <= MAX_MULT) validSel[n] = mult;
-    });
+      var rawSel = (payload.s && typeof payload.s === "object") ? payload.s : {};
+      var validSel = {};
+      Object.keys(rawSel).forEach(function(n){
+        var mult = parseInt(rawSel[n], 10);
+        if (RECIPES[n] && mult > 0 && mult <= MAX_MULT) validSel[n] = mult;
+      });
 
-    var rawCustom = Array.isArray(payload.c) ? payload.c : [];
-    var validCustom = rawCustom.filter(function(i){
-      return i && typeof i.name === "string" && i.name.trim();
-    }).map(function(i){
-      return {
-        id: (typeof i.id === "string" && i.id) ? i.id : makeCustomId(),
-        name: String(i.name).trim().slice(0, 60),
-        qty: typeof i.qty === "string" ? i.qty.slice(0, 24) : "",
-        region: (typeof i.region === "string" && i.region.trim()) ? i.region.trim() : "Other"
+      var rawCustom = Array.isArray(payload.c) ? payload.c : [];
+      var validCustom = rawCustom.filter(function(t){
+        return Array.isArray(t) && typeof t[1] === "string" && t[1].trim();
+      }).map(function(t){
+        return {
+          id: (typeof t[0] === "string" && t[0]) ? t[0] : makeCustomId(),
+          name: String(t[1]).trim().slice(0, 60),
+          qty: typeof t[2] === "string" ? t[2].slice(0, 24) : "",
+          region: (typeof t[3] === "string" && t[3].trim()) ? t[3].trim() : "Other"
+        };
+      });
+
+      var checkedKeys = Array.isArray(payload.k) ? payload.k.filter(function(k){ return typeof k === "string"; }) : [];
+      var overrides = (payload.o && typeof payload.o === "object") ? payload.o : {};
+
+      var totalCount = Object.keys(validSel).length + validCustom.length;
+      if (totalCount === 0 && checkedKeys.length === 0 && Object.keys(overrides).length === 0){
+        stripShareParam();
+        return;
+      }
+
+      pendingShared = {
+        selections: validSel,
+        customItems: validCustom,
+        checkedKeys: checkedKeys,
+        overrides: overrides
       };
-    });
-
-    var checkedKeys = Array.isArray(payload.k) ? payload.k.filter(function(k){ return typeof k === "string"; }) : [];
-    var overrides = (payload.o && typeof payload.o === "object") ? payload.o : {};
-
-    var totalCount = Object.keys(validSel).length + validCustom.length;
-    if (totalCount === 0 && checkedKeys.length === 0 && Object.keys(overrides).length === 0){
+      showShareBanner(pendingShared);
+    }).catch(function(){
+      showSyncBanner("That share link couldn't be read \u2014 it may be from an older version or an unsupported browser.", "error", true);
       stripShareParam();
-      return;
-    }
-
-    pendingShared = {
-      selections: validSel,
-      customItems: validCustom,
-      checkedKeys: checkedKeys,
-      overrides: overrides
-    };
-    showShareBanner(pendingShared);
+    });
   }
 
   // ---------- update recipes (CSV upload) ----------
