@@ -28,7 +28,7 @@
   --font-display:"Fraunces", Georgia, serif;
   --font-body:"Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
-
+ 
 *,*::before,*::after{box-sizing:border-box;}
 html{-webkit-text-size-adjust:100%;}
 body{
@@ -39,19 +39,19 @@ body{
   line-height:1.45;
   -webkit-font-smoothing:antialiased;
 }
-
+ 
 button{font-family:inherit;}
 input,select{font-family:inherit;}
-
+ 
 @media (prefers-reduced-motion: reduce){
   *{animation-duration:.001ms !important; transition-duration:.001ms !important;}
 }
-
+ 
 :focus-visible{
   outline:2.5px solid var(--mustard);
   outline-offset:2px;
 }
-
+ 
 /* ---------- Top bar ---------- */
 .topbar{
   background:var(--pine-950);
@@ -71,7 +71,7 @@ input,select{font-family:inherit;}
   gap:12px;
   flex-wrap:wrap;
 }
-
+ 
 @media (max-width:480px){
   .brand-text p{display:none;}
   .update-btn span,.clear-week-btn span{display:none;}
@@ -118,7 +118,7 @@ input,select{font-family:inherit;}
 .clear-week-btn:hover,.update-btn:hover{background:var(--pine-800); border-color:var(--pine-700);}
 .update-btn{border-color:var(--mustard); color:var(--mustard-light);}
 .update-btn:hover{background:var(--pine-800); border-color:var(--mustard-light);}
-
+ 
 /* ---------- Layout ---------- */
 .layout{
   max-width:1180px;
@@ -128,7 +128,7 @@ input,select{font-family:inherit;}
   grid-template-columns:1fr;
   gap:22px;
 }
-
+ 
 @media (min-width:900px){
   .layout{
     grid-template-columns:minmax(0,1fr) 360px;
@@ -136,7 +136,47 @@ input,select{font-family:inherit;}
     padding-bottom:40px;
   }
 }
-
+ 
+/* ---------- Weekly presets ---------- */
+.presets-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:14px;
+}
+.presets-label{
+  font-size:.78rem;
+  color:var(--ink-soft);
+  margin-right:2px;
+}
+.preset-btn{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  background:var(--card);
+  border:1px solid var(--line);
+  color:var(--ink);
+  padding:7px 13px;
+  border-radius:var(--radius-pill);
+  font-size:.82rem;
+  cursor:pointer;
+  transition:border-color .15s ease, background .15s ease, color .15s ease;
+  white-space:nowrap;
+  box-shadow:var(--shadow-1);
+}
+.preset-btn:hover{border-color:#C7C2A8;}
+.preset-btn.is-active{
+  background:var(--pine-950);
+  border-color:var(--pine-950);
+  color:var(--paper);
+}
+.preset-count{
+  font-size:.74rem;
+  font-variant-numeric:tabular-nums;
+  opacity:.7;
+}
+ 
 /* ---------- Planner controls ---------- */
 .planner-controls{
   display:flex;
@@ -181,26 +221,26 @@ input,select{font-family:inherit;}
   color:var(--ink);
   font-size:.85rem;
 }
-
+ 
 .planner-count{
   margin:2px 2px 14px;
   font-size:.8rem;
   color:var(--ink-soft);
 }
-
+ 
 /* ---------- Recipe grid ---------- */
 .recipe-grid{
   display:grid;
   grid-template-columns:repeat(auto-fill, minmax(200px,1fr));
   gap:12px;
 }
-
+ 
 .empty-state{
   color:var(--ink-soft);
   font-size:.9rem;
   padding:30px 4px;
 }
-
+ 
 .recipe-card{
   background:var(--card);
   border:1px solid var(--line);
@@ -220,7 +260,7 @@ input,select{font-family:inherit;}
   box-shadow:0 0 0 1.5px var(--mustard) inset;
   background:#FDFAF0;
 }
-
+ 
 .recipe-card-top{
   display:flex;
   align-items:flex-start;
@@ -257,7 +297,7 @@ input,select{font-family:inherit;}
   gap:8px;
   margin-top:2px;
 }
-
+ 
 .pick-btn{
   display:flex;
   align-items:center;
@@ -281,7 +321,7 @@ input,select{font-family:inherit;}
 .recipe-card.is-picked .pick-btn-label::before{content:"On the list";}
 .recipe-card.is-picked .pick-btn-label{font-size:0;}
 .recipe-card.is-picked .pick-btn-label::before{font-size:.78rem;}
-
+ 
 .stepper{
   display:flex;
   align-items:center;
@@ -310,7 +350,7 @@ input,select{font-family:inherit;}
   text-align:center;
   font-variant-numeric:tabular-nums;
 }
-
+ 
 /* ---------- Grocery list panel ---------- */
 .list-panel{
   background:var(--pine-950);
@@ -320,7 +360,7 @@ input,select{font-family:inherit;}
   flex-direction:column;
   overflow:hidden;
 }
-
+ 
 @media (min-width:900px){
   .list-panel{
     position:sticky;
@@ -328,7 +368,7 @@ input,select{font-family:inherit;}
     max-height:calc(100vh - 102px);
   }
 }
-
+ 
 .list-panel-head{
   padding:18px 18px 12px;
   display:flex;
@@ -374,7 +414,7 @@ input,select{font-family:inherit;}
   cursor:pointer;
   padding:4px;
 }
-
+ 
 /* ---------- Add item form ---------- */
 .add-item-form{
   display:flex;
@@ -410,13 +450,13 @@ input,select{font-family:inherit;}
   cursor:pointer;
 }
 .add-item-btn:hover{background:var(--mustard-light);}
-
+ 
 .list-panel-body{
   padding:6px 18px 14px;
   overflow-y:auto;
   flex:1;
 }
-
+ 
 .region-group{margin-top:14px;}
 .region-group:first-child{margin-top:10px;}
 .region-title{
@@ -433,7 +473,7 @@ input,select{font-family:inherit;}
   color:#7C897A;
   font-weight:400;
 }
-
+ 
 .item-row{
   display:flex;
   align-items:center;
@@ -518,7 +558,7 @@ input,select{font-family:inherit;}
   width:100px;
   min-width:0;
 }
-
+ 
 .list-panel-foot{
   display:flex;
   justify-content:space-between;
@@ -534,13 +574,13 @@ input,select{font-family:inherit;}
   padding:6px 4px;
 }
 .text-btn:hover{color:var(--paper);}
-
+ 
 .list-empty{
   color:#7C897A;
   font-size:.85rem;
   padding:24px 2px;
 }
-
+ 
 /* ---------- Mobile bottom bar ---------- */
 .mobile-bar{
   position:fixed;
@@ -550,12 +590,12 @@ input,select{font-family:inherit;}
   color:var(--paper);
   border:none;
   border-radius:var(--radius-pill);
-  padding:16px 20px;
+  padding:12px 16px;
   display:flex;
   align-items:center;
-  gap:12px;
-  min-height:56px;
-  box-shadow:0 10px 28px rgba(24,38,32,.4);
+  gap:10px;
+  min-height:46px;
+  box-shadow:0 8px 22px rgba(24,38,32,.38);
   cursor:pointer;
   transform:translateY(120%);
   transition:transform .25s ease;
@@ -565,33 +605,39 @@ input,select{font-family:inherit;}
   background:var(--mustard-light);
   color:var(--pine-950);
   font-weight:700;
-  font-size:.92rem;
-  width:30px; height:30px;
+  font-size:.82rem;
+  width:26px; height:26px;
   border-radius:50%;
   display:flex; align-items:center; justify-content:center;
   flex-shrink:0;
 }
 .mobile-bar-count[hidden]{display:none;}
 .mobile-bar-label{
-  font-size:1rem;
+  font-size:.9rem;
   font-weight:600;
   flex:1;
   text-align:left;
   line-height:1.3;
 }
-.mobile-bar svg{flex-shrink:0; width:18px; height:18px;}
-
+.mobile-bar svg{flex-shrink:0; width:16px; height:16px;}
+ 
+/* Hide the pull-up tab whenever the sheet (or any modal) is already open so it
+   never floats on top of — and blocks taps on — the content beneath it. */
+body.sheet-open .mobile-bar{
+  display:none !important;
+}
+ 
 @media (min-width:900px){
   .mobile-bar{display:none !important;}
 }
-
+ 
 .scrim{
   display:none;
   position:fixed; inset:0;
   background:rgba(20,28,22,.4);
   z-index:24;
 }
-
+ 
 @media (max-width:899.98px){
   .list-panel{
     position:fixed;
@@ -606,9 +652,9 @@ input,select{font-family:inherit;}
   .sheet-close{display:block;}
   .scrim.is-visible{display:block;}
 }
-
+ 
 body.sheet-open{overflow:hidden;}
-
+ 
 /* ---------- Update recipes modal ---------- */
 .modal-scrim{
   display:none;
@@ -617,7 +663,7 @@ body.sheet-open{overflow:hidden;}
   z-index:44;
 }
 .modal-scrim.is-visible{display:block;}
-
+ 
 .modal{
   display:none;
   position:fixed;
@@ -634,7 +680,7 @@ body.sheet-open{overflow:hidden;}
   padding:20px 20px 16px;
 }
 .modal.is-visible{display:block;}
-
+ 
 .modal-head{
   display:flex;
   align-items:flex-start;
@@ -652,15 +698,15 @@ body.sheet-open{overflow:hidden;}
   color:var(--ink-soft);
 }
 .modal-head .sheet-close:hover{color:var(--ink);}
-
+ 
 .modal-status{
   margin:6px 0 0;
   font-size:.78rem;
   color:var(--ink-soft);
 }
-
+ 
 .modal-body{margin-top:14px;}
-
+ 
 .file-field{
   display:flex;
   flex-direction:column;
@@ -693,7 +739,7 @@ body.sheet-open{overflow:hidden;}
   color:var(--ink-soft);
   line-height:1.4;
 }
-
+ 
 .modal-message{
   margin:14px 0 0;
   font-size:.82rem;
@@ -703,7 +749,7 @@ body.sheet-open{overflow:hidden;}
 }
 .modal-message.is-error{background:#FBEBE6; color:var(--brick);}
 .modal-message.is-success{background:#EEF3E7; color:#3D6B3F;}
-
+ 
 .modal-foot{
   margin-top:18px;
   padding-top:14px;
@@ -715,7 +761,7 @@ body.sheet-open{overflow:hidden;}
   flex-wrap:wrap;
 }
 .modal-foot-actions{display:flex; gap:8px; margin-left:auto;}
-
+ 
 .ghost-btn{
   background:transparent;
   border:1px solid var(--line);
@@ -726,7 +772,7 @@ body.sheet-open{overflow:hidden;}
   cursor:pointer;
 }
 .ghost-btn:hover{border-color:#C7C2A8;}
-
+ 
 .primary-btn{
   background:var(--mustard);
   border:1px solid var(--mustard);
@@ -745,7 +791,7 @@ body.sheet-open{overflow:hidden;}
   cursor:not-allowed;
 }
 .primary-btn-block{width:100%;}
-
+ 
 .manual-upload{
   margin-top:16px;
   padding-top:14px;
@@ -768,7 +814,7 @@ body.sheet-open{overflow:hidden;}
 .manual-upload[open] summary::before{transform:rotate(90deg);}
 .manual-upload .file-field{margin-top:14px;}
 .manual-upload .ghost-btn{margin-top:12px;}
-
+ 
 /* ---------- Sync banner (toast) ---------- */
 .sync-banner{
   position:fixed;
@@ -799,7 +845,7 @@ body.sheet-open{overflow:hidden;}
 }
 .sync-banner.is-error .sync-dot{background:#E08466;}
 .sync-banner.is-success .sync-dot{background:#8FCB8F;}
-
+ 
 .share-banner{
   position:fixed;
   top:64px;
@@ -839,7 +885,7 @@ body.sheet-open{overflow:hidden;}
   font-weight:600;
 }
 .share-banner-btn:hover{border-color:var(--mustard-light);}
-
+ 
 /* ---------- Print ---------- */
 @media print{
   .topbar, .planner, .mobile-bar, .scrim, .list-panel-foot, .sheet-close, .head-icon-btn, .add-item-form, .sync-banner, .share-banner, .qty-reset-btn, .item-delete-btn{display:none !important;}
@@ -857,11 +903,11 @@ body.sheet-open{overflow:hidden;}
   .item-row.is-custom{background:none;}
   .item-checkbox{border-color:#666;}
 }
-
+ 
 </style>
 </head>
 <body>
-
+ 
 <header class="topbar">
   <div class="topbar-inner">
     <div class="brand">
@@ -885,10 +931,12 @@ body.sheet-open{overflow:hidden;}
     </div>
   </div>
 </header>
-
+ 
 <main class="layout">
-
+ 
   <section class="planner" aria-label="Recipe picker">
+    <div class="presets-row" id="presetsRow" aria-label="Weekly menu presets"></div>
+ 
     <div class="planner-controls">
       <div class="search-wrap">
         <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
@@ -906,13 +954,13 @@ body.sheet-open{overflow:hidden;}
         </select>
       </div>
     </div>
-
+ 
     <p class="planner-count" id="resultCount"></p>
-
+ 
     <div class="recipe-grid" id="recipeGrid" role="list"></div>
     <p class="empty-state" id="emptyState" hidden>No recipes match “<span id="emptyQuery"></span>.”</p>
   </section>
-
+ 
   <aside class="list-panel" id="listPanel" aria-label="Grocery list">
     <div class="list-panel-head">
       <div>
@@ -942,9 +990,9 @@ body.sheet-open{overflow:hidden;}
       <button class="text-btn" id="printBtn" type="button">Print</button>
     </div>
   </aside>
-
+ 
 </main>
-
+ 
 <div class="share-banner" id="shareBanner" hidden>
   <span id="shareBannerText"></span>
   <div class="share-banner-actions">
@@ -952,15 +1000,15 @@ body.sheet-open{overflow:hidden;}
     <button id="shareDismissBtn" class="share-banner-btn" type="button">Dismiss</button>
   </div>
 </div>
-
+ 
 <button class="mobile-bar" id="mobileBar" type="button">
   <span class="mobile-bar-count" id="mobileBarCount">0</span>
   <span class="mobile-bar-label" id="mobileBarLabel">recipes picked — view list</span>
   <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M6 4 L13 10 L6 16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
 </button>
-
+ 
 <div class="scrim" id="scrim"></div>
-
+ 
 <div class="modal-scrim" id="modalScrim"></div>
 <div class="modal" id="updateModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" hidden>
   <div class="modal-head">
@@ -969,12 +1017,12 @@ body.sheet-open{overflow:hidden;}
       <svg viewBox="0 0 20 20" width="18" height="18"><path d="M4 4 L16 16 M16 4 L4 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
     </button>
   </div>
-
+ 
   <p class="modal-status" id="modalStatus"></p>
-
+ 
   <div class="modal-body">
     <button class="primary-btn primary-btn-block" id="checkNowBtn" type="button">Check CSV files for updates</button>
-
+ 
     <details class="manual-upload">
       <summary>Or upload CSV files manually</summary>
       <label class="file-field">
@@ -982,20 +1030,20 @@ body.sheet-open{overflow:hidden;}
         <input type="file" id="recipesFileInput" accept=".csv,text/csv">
       </label>
       <p class="file-hint">Same layout as before: first column “Ingredients”, then one column per recipe, with amounts filled in below.</p>
-
+ 
       <label class="file-field">
         <span class="file-field-label">Groupings CSV <em>optional</em></span>
         <input type="file" id="groupingsFileInput" accept=".csv,text/csv">
       </label>
       <p class="file-hint">Two columns: “Ingredients” and “Region”. Skip this to keep current aisle groupings — brand-new ingredients land under “Other” until grouped.</p>
       <p class="file-hint">Note: the next successful check of the CSV files on GitHub will replace a manual upload.</p>
-
+ 
       <button class="ghost-btn" id="modalReplaceBtn" type="button" disabled>Use these files</button>
     </details>
-
+ 
     <p class="modal-message" id="modalMessage" hidden></p>
   </div>
-
+ 
   <div class="modal-foot">
     <button class="text-btn" id="restoreDefaultBtn" type="button" hidden>Restore sample recipes</button>
     <div class="modal-foot-actions">
@@ -1003,12 +1051,12 @@ body.sheet-open{overflow:hidden;}
     </div>
   </div>
 </div>
-
+ 
 <div class="sync-banner" id="syncBanner" hidden>
   <span class="sync-dot" aria-hidden="true"></span>
   <span id="syncBannerText"></span>
 </div>
-
+ 
 <template id="recipeCardTemplate">
   <article class="recipe-card" role="listitem" tabindex="0">
     <div class="recipe-card-top">
@@ -1029,22 +1077,29 @@ body.sheet-open{overflow:hidden;}
     </div>
   </article>
 </template>
-
+ 
 <script id="recipeData" type="application/json">{"recipes":{"Asian_Beef_Soup":{"Beef Stock (cups)":2,"Bone Broth (cups)":2,"Butter (tbsp)":4,"Carbe Diem (boxes)":1,"Cilantro (bunches)":1,"Green Onions (bunches)":1,"Milanesa Steak (g)":700,"Ramen Broth (cups)":2,"Spinach (g)":283},"Orange_Chicken":{"Asparagus (bunches)":1,"Butter (tbsp)":2,"Ketchup (g)":39,"Light Mayo (g)":39,"Popcorn Chicken (g)":535,"Rice (cups)":1,"White Gravy (g)":78},"Pulled_Chicken_Nachos":{"Cheddar (g)":60,"Chicken Breast (g)":300,"Chicken Stock (cups)":1,"Guacamole (g)":57,"Lettuce (g)":453,"Mission Chips (g)":160,"Red Beans (cans)":1,"Sour Cream (g)":57,"Spicy Queso (g)":120},"Pulled_BBQ_Sandwich":{"Asparagus (bunches)":1,"BBQ NSA (g)":300,"Butter (tbsp)":3,"Chicken Breast (g)":645,"Chicken Stock (cups)":2,"Lewis Keto Burger (buns)":4,"Paneer/Baked Cheese (g)":85},"Beef_Stroganoff":{"Bell Peppers (g)":300,"Broccoli (g)":453,"Butter (tbsp)":3,"Ground Beef (g)":430,"Hamburger Helper (boxes)":1,"Milk (cups)":2.25,"Sour Cream (g)":100,"Zucchini (g)":300},"Chicken_Noodle_Soup":{"Baby Carrots (g)":453,"Broccoli (g)":453,"Butter (tbsp)":4,"Carbe Diem (boxes)":1,"Chicken Breast (g)":725,"Chicken Stock (cups)":4,"Cilantro (bunches)":0.5,"Onion (g)":50},"Taco_Salad":{"Cheddar (g)":50,"Cilantro (bunches)":0.5,"Guacamole (g)":57,"Lettuce (g)":453,"Milanesa Steak (g)":330,"Mission Chips (g)":160,"Red Beans (cans)":1,"Sour Cream (g)":57,"Spicy Queso (g)":110},"Steak_and_Pickles":{"Eggs (count)":2,"Flour (g)":100,"Milanesa Steak (g)":600,"Panko Crumbs (g)":75,"Pickle Spears (jars)":2,"Ranch (g)":160},"Rice_and_Beans":{"Avocado (count)":1,"Chicken Breast (g)":295,"Milanesa Steak (g)":295,"Red Beans (cans)":1,"Rice (cups)":1,"Tomato Paste (g)":33},"Enchiladas":{"Cheddar (g)":35,"Cilantro (bunches)":1,"Corn Tortillas (count)":3,"Enchilada Sauce (g)":800,"Flour Tortillas (count)":4,"Ground Beef (g)":300,"Guacamole (g)":57,"Lettuce (g)":453,"Red Beans (cans)":1,"Sour Cream (g)":57,"Spicy Queso (g)":100},"Chicken_Parm":{"Marinara (ounces)":12,"Cheddar (g)":85,"Chicken Breast (g)":453,"Croutons (g)":45,"Eggs (count)":4,"Lettuce (g)":453,"Panko Crumbs (g)":75,"Parmesan (g)":85},"Buffalo_Chicken_Dip":{"Baby Carrots (g)":453,"Broccoli (g)":453,"Cheddar (g)":70,"Chicken Breast (g)":400,"Chicken Stock (cups)":1,"Cream Cheese (g)":226,"Frank's Red Hot (g)":100,"Ranch (g)":70,"Yuca (g)":175},"Asopao":{"Baby Carrots (g)":226,"Bell Peppers (g)":119,"Black Forest Ham (g)":226,"Bone Broth (cups)":2,"Butter (tbsp)":3,"Chicken Breast (g)":360,"Chicken Stock (cups)":2,"Cilantro (bunches)":1,"Olives (g)":100,"Red Beans (cans)":1,"Rice (cups)":1,"Tomato Paste (g)":75},"Beef_Stew":{"Baby Carrots (g)":453,"Beef Stock (cups)":2,"Bone Broth (cups)":2,"Butter (tbsp)":3,"Cilantro (bunches)":1,"Little Potatoes (g)":453,"Olives (g)":100,"Onion (g)":50,"Spinach (g)":283,"Stew Steak (g)":820,"Sweet Peas (cans)":1},"Hamburgers":{"Burger Buns (count)":4,"Cheddar (g)":145,"Croutons (g)":40,"Ground Beef (g)":480,"Lettuce (g)":453,"Ranch (g)":60},"Chicken_Alfredo":{"Broccoli (g)":453,"Butter (tbsp)":3,"Carbe Diem (boxes)":1,"Chicken Breast (g)":450,"Heavy Whipping Cream (g)":135,"Parmesan (g)":85},"Chili":{"Bell Peppers (g)":453,"Carbe Diem (boxes)":1,"Cheddar (g)":80,"Crushed Tomato (g)":398,"Ground Beef (g)":310,"Red Beans (cans)":1,"Sour Cream (g)":60},"Creamy_Cheddar_Bacon_Chicken":{"Bacon (g)":227,"Butter (tbsp)":3,"Cheddar (g)":75,"Chicken Breast (g)":265,"Chicken Stock (cups)":240,"Cream Cheese (g)":113,"Mashed Potato (cups)":2,"Milk (cups)":0.75,"Spinach (g)":283},"Famous_Bowl":{"Cheddar (g)":120,"Mashed Potato (cups)":2,"Popcorn Chicken (g)":395,"Sweet Corn (cans)":1,"Sweet Peas (cans)":1,"White Gravy (g)":78},"Lasagna":{"Marinara (ounces)":12,"Bell Peppers (g)":357,"Cream Cheese (g)":226,"Ground Beef (g)":300,"Lasagna Sheets (boxes)":1,"Milk (cups)":0.25,"Mozzarella (g)":60,"Tomato (g)":500},"Mac_and_Cheese":{"Asparagus (bunches)":1,"Butter (tbsp)":1,"Carbe Diem (boxes)":1,"Cheddar (g)":33,"Hot Dogs (count)":6,"Milk (cups)":0.5,"Mozzarella (g)":35,"Parmesan (g)":33,"Spicy Queso (g)":70},"Omurice":{"Butter (tbsp)":2,"Cheddar (g)":100,"Chicken Breast (g)":150,"Eggs (count)":12,"Ketchup (g)":60,"Milk (cups)":0.416,"Mixed Peas and Carrots (cans)":1,"Rice (cups)":0.75,"Soy Sauce (g)":30},"Open_Face_Burrito":{"Cheddar (g)":60,"Cilantro (bunches)":0.5,"Flour Tortillas (count)":4,"Guacamole (g)":57,"Lettuce (g)":453,"Milanesa Steak (g)":300,"Red Beans (cans)":1,"Rice (cups)":0.5,"Sour Cream (g)":57,"Spicy Queso (g)":125,"Yuca (g)":100},"Deep_Dish_Pizza":{"Cream Cheese (g)":56,"Crushed Tomato (g)":794,"Eggs (count)":1,"Ground Beef (g)":225,"Mozzarella (g)":362,"Onion (g)":90,"Tapioca Flour (g)":120},"Popcorn_Chicken":{"Baby Carrots (g)":453,"BBQ NSA (g)":50,"Broccoli (g)":453,"Butter (tbsp)":2,"Cheddar (g)":195,"Frank's Red Hot (g)":50,"Little Potatoes (g)":453},"Spaghetti":{"Marinara (ounces)":12,"Asparagus (bunches)":1,"Butter (tbsp)":2,"Carbe Diem (boxes)":1,"Ground Beef (g)":385,"Parmesan (g)":100},"Two_Sauce_Pasta":{"Marinara (ounces)":12,"Broccoli (g)":453,"Carbe Diem (boxes)":1,"Hot Dogs (count)":6,"Mozzarella (g)":80,"Bertolli Alfredo (jars)":1},"Pepper_Beef":{"Bell Peppers (g)":300,"Broccoli (g)":340,"Butter (tbsp)":4,"Cheddar (g)":66,"Cheddar Bay Biscuits (boxes)":1,"Ground Beef (g)":300,"Rice (cups)":1}},"groupings":{"Alfredo (ounces)":"Sauce","Asparagus (bunches)":"Produce","Avocado (count)":"Produce","Baby Carrots (g)":"Produce","Bacon (g)":"Meats","Bacon Bits (g)":"International","BBQ NSA (g)":"Sauce","BBQ Sauce (g)":"Sauce","Beef Stock (cups)":"International","Bell Peppers (g)":"Produce","Bertolli Alfredo (jars)":"International","Black Forest Ham (g)":"Meats","Bone Broth (cups)":"International","Bread (g)":"Produce","Broccoli (g)":"Produce","Burger Buns (count)":"Produce","Butter (tbsp)":"Dairy","Canned Carrots (cans)":"International","Carbe Diem (boxes)":"EXOTIC","Cheddar (g)":"Dairy","Cheddar Bay Biscuits (boxes)":"Baking/Spice","Cheese Dogs (count)":"Meats","Chicken Breast (g)":"Meats","Chicken Stock (cups)":"International","Cilantro (bunches)":"Produce","Corn Bread (boxes)":"Baking/Spice","Corn on the Cob (count)":"Produce","Corn Tortillas (count)":"International","Couscous (cups)":"International","Cream Cheese (g)":"Dairy","Croutons (g)":"Sauce","Crushed Tomato (g)":"Sauce","Eggs (count)":"Dairy","Enchilada Sauce (g)":"Sauce","Flour (g)":"International","Flour Tortillas (count)":"International","Frank's Red Hot (g)":"Sauce","Green Onions (bunches)":"Produce","Ground Beef (g)":"Meats","Guacamole (g)":"Produce","Hamburger Helper (boxes)":"International","Heavy Whipping Cream (g)":"Dairy","Hot Dogs (count)":"Meats","Hot Sauce (g)":"Sauce","Ketchup (g)":"Sauce","Kraft Slices (count)":"Dairy","Lasagna Sheets (boxes)":"EXOTIC","Lettuce (g)":"Produce","Lewis Keto Burger (buns)":"Produce","Little Potatoes (g)":"Produce","Marinara (ounces)":"Sauce","Mashed Potato (cups)":"International","Milanesa Steak (g)":"Meats","Milk (cups)":"Dairy","Mission Chips (g)":"International","Mixed Peas and Carrots (cans)":"International","Mozzarella (g)":"Dairy","Olives (g)":"Produce","Onion (g)":"Produce","Orange Sauce (g)":"Sauce","Pad Thai Rice Noodles (g)":"International","Paneer/Baked Cheese (g)":"EXOTIC","Panko Crumbs (g)":"International","Parmesan (g)":"Dairy","Pasta Elbows (boxes)":"International","Pasta Penne (boxes)":"International","Pasta Spaghetti (boxes)":"International","Pho Broth (cups)":"International","Pickle Spears (jars)":"International","Pizza (count)":"Frozen","Popcorn Chicken (g)":"Frozen","Pumpkin (g)":"Produce","Ramen Broth (cups)":"International","Ranch (g)":"Sauce","Red Beans (cans)":"International","Rice (cups)":"International","Sour Cream (g)":"Dairy","Soy Sauce (g)":"Sauce","Spicy Queso (g)":"Sauce","Spinach (g)":"Produce","Stew Steak (g)":"Meats","Sweet Corn (cans)":"International","Sweet Peas (cans)":"International","Tapioca Flour (g)":"Baking/Spice","Tomato (g)":"Produce","White Gravy (g)":"Sauce","Yuca (g)":"Frozen","Zucchini (g)":"Produce","Light Mayo (g)":"Sauce","Tomato Paste (g)":"International"},"ingredientOrder":["Marinara (ounces)","Alfredo (ounces)","Asparagus (bunches)","Avocado (count)","Baby Carrots (g)","Bacon (g)","Bacon Bits (g)","BBQ NSA (g)","BBQ Sauce (g)","Beef Stock (cups)","Bell Peppers (g)","Black Forest Ham (g)","Bone Broth (cups)","Bread (g)","Broccoli (g)","Burger Buns (count)","Butter (tbsp)","Canned Carrots (cans)","Carbe Diem (boxes)","Cheddar (g)","Cheddar Bay Biscuits (boxes)","Cheese Dogs (count)","Chicken Breast (g)","Chicken Stock (cups)","Cilantro (bunches)","Corn Bread (boxes)","Corn on the Cob (count)","Corn Tortillas (count)","Couscous (cups)","Cream Cheese (g)","Croutons (g)","Crushed Tomato (g)","Eggs (count)","Enchilada Sauce (g)","Flour (g)","Flour Tortillas (count)","Frank's Red Hot (g)","Green Onions (bunches)","Ground Beef (g)","Guacamole (g)","Hamburger Helper (boxes)","Heavy Whipping Cream (g)","Hot Dogs (count)","Hot Sauce (g)","Ketchup (g)","Kraft Slices (count)","Lasagna Sheets (boxes)","Lettuce (g)","Lewis Keto Burger (buns)","Light Mayo (g)","Little Potatoes (g)","Mashed Potato (cups)","Milanesa Steak (g)","Milk (cups)","Mission Chips (g)","Mixed Peas and Carrots (cans)","Mozzarella (g)","Olives (g)","Onion (g)","Orange Sauce (g)","Pad Thai Rice Noodles (g)","Paneer/Baked Cheese (g)","Panko Crumbs (g)","Parmesan (g)","Pasta Elbows (boxes)","Pasta Penne (boxes)","Pasta Spaghetti (boxes)","Pho Broth (cups)","Pickle Spears (jars)","Pizza (count)","Popcorn Chicken (g)","Pumpkin (g)","Ramen Broth (cups)","Ranch (g)","Red Beans (cans)","Rice (cups)","Sour Cream (g)","Soy Sauce (g)","Spicy Queso (g)","Spinach (g)","Stew Steak (g)","Sweet Corn (cans)","Sweet Peas (cans)","Tapioca Flour (g)","Tomato (g)","Tomato Paste (g)","White Gravy (g)","Yuca (g)","Zucchini (g)","Bertolli Alfredo (jars)"]}
 </script>
 <script>
 (function(){
   "use strict";
-
+ 
   var DATA = JSON.parse(document.getElementById('recipeData').textContent);
   var DEFAULT_RECIPES = DATA.recipes;
   var DEFAULT_GROUPINGS = DATA.groupings;
   var RECIPES, GROUPINGS;
   var allRecipeNames = [];
-
+ 
   var REGION_ORDER = ["Produce","Meats","Dairy","Frozen","Sauce","International","Baking/Spice","EXOTIC"];
   var MAX_MULT = 6;
-
+ 
+  var WEEK_PRESETS = [
+    { label: "Week 1", recipes: ["Orange_Chicken","Chicken_Noodle_Soup","Chicken_Alfredo","Taco_Salad","Omurice","Buffalo_Chicken_Dip","Asian_Beef_Soup"] },
+    { label: "Week 2", recipes: ["Two_Sauce_Pasta","Popcorn_Chicken","Spaghetti","Pulled_Chicken_Nachos","Mac_and_Cheese","Famous_Bowl","Pulled_BBQ_Sandwich"] },
+    { label: "Week 3", recipes: ["Hamburgers","Rice_and_Beans","Deep_Dish_Pizza","Steak_and_Pickles","Asopao","Beef_Stroganoff","Chili"] },
+    { label: "Week 4", recipes: ["Pepper_Beef","Creamy_Cheddar_Bacon_Chicken","Chicken_Parm","Lasagna","Open_Face_Burrito","Beef_Stew","Enchiladas"] }
+  ];
+ 
   // CSV files published alongside this HTML file (same GitHub Pages directory).
   // Rename these if your actual filenames differ once uploaded.
   var DATA_URLS = {
@@ -1052,7 +1107,7 @@ body.sheet-open{overflow:hidden;}
     groupings: "Food_R_Sheet_-_Groupings.csv"
   };
   var SYNC_MIN_INTERVAL_MS = 60000; // don't re-check more than once a minute on tab focus
-
+ 
   var STORE_KEY_SEL = "weeklyHaul.selections.v1";
   var STORE_KEY_CHK = "weeklyHaul.checked.v1";
   var STORE_KEY_CUSTOM = "weeklyHaul.customData.v1";
@@ -1060,7 +1115,7 @@ body.sheet-open{overflow:hidden;}
   var STORE_KEY_SYNC_RAW = "weeklyHaul.syncRaw.v1";
   var STORE_KEY_CUSTOM_ITEMS = "weeklyHaul.customItems.v1";
   var STORE_KEY_QTY_OVERRIDES = "weeklyHaul.qtyOverrides.v1";
-
+ 
   function loadJSON(key, fallback){
     try{
       var raw = localStorage.getItem(key);
@@ -1070,7 +1125,7 @@ body.sheet-open{overflow:hidden;}
   function saveJSON(key, val){
     try{ localStorage.setItem(key, JSON.stringify(val)); return true; }catch(e){ return false; }
   }
-
+ 
   var selections = loadJSON(STORE_KEY_SEL, {});   // { recipeName: multiplier }
   var checked = loadJSON(STORE_KEY_CHK, {});       // { itemKey: true }
   var customItems = loadJSON(STORE_KEY_CUSTOM_ITEMS, []); // [{ id, name, qty, region }]
@@ -1078,13 +1133,13 @@ body.sheet-open{overflow:hidden;}
   // dataMeta: { source: 'csv'|'manual', recipeCount, syncedAt (ms) | uploadedAt (string), fileName? }
   var dataMeta = loadJSON(STORE_KEY_META, null);
   var lastSyncCheckAt = 0;
-
+ 
   var customItemSeq = 0;
   function makeCustomId(){
     customItemSeq += 1;
     return "c" + Date.now().toString(36) + customItemSeq;
   }
-
+ 
   function loadActiveData(){
     var custom = loadJSON(STORE_KEY_CUSTOM, null);
     if (custom && custom.recipes && Object.keys(custom.recipes).length){
@@ -1098,7 +1153,7 @@ body.sheet-open{overflow:hidden;}
     allRecipeNames = Object.keys(RECIPES);
     pruneStaleSelections();
   }
-
+ 
   function pruneStaleSelections(){
     var changed = false;
     Object.keys(selections).forEach(function(name){
@@ -1106,21 +1161,21 @@ body.sheet-open{overflow:hidden;}
     });
     if (changed) saveJSON(STORE_KEY_SEL, selections);
   }
-
+ 
   loadActiveData();
-
+ 
   // ---------- helpers ----------
-
+ 
   function humanizeRecipeName(name){
     return name.replace(/_/g, " ");
   }
-
+ 
   function splitIngredient(full){
     var m = full.match(/^(.+)\s\(([^)]+)\)$/);
     if (m) return { base: m[1], unit: m[2] };
     return { base: full, unit: "" };
   }
-
+ 
   var FRACTIONS = [
     [1/8, "\u215B"], [1/6, "\u2159"], [1/4, "\u00BC"], [1/3, "\u2153"],
     [3/8, "\u215C"], [1/2, "\u00BD"], [5/8, "\u215D"], [2/3, "\u2154"],
@@ -1128,7 +1183,7 @@ body.sheet-open{overflow:hidden;}
   ];
   var WHOLE_UNITS = { count:1, boxes:1, cans:1, jars:1, buns:1, bunches:1 };
   var UNIT_LABEL = { ounces:"oz" };
-
+ 
   function formatQty(amount, unit){
     var label = UNIT_LABEL[unit] || unit;
     if (WHOLE_UNITS.hasOwnProperty(unit)) {
@@ -1155,13 +1210,13 @@ body.sheet-open{overflow:hidden;}
     var rounded2 = Math.round(amount*100)/100;
     return rounded2 + " " + label;
   }
-
+ 
   function regionForIngredient(full){
     return GROUPINGS[full] || "Other";
   }
-
+ 
   // ---------- recipe grid ----------
-
+ 
   var recipeGrid = document.getElementById("recipeGrid");
   var searchInput = document.getElementById("searchInput");
   var sortSelect = document.getElementById("sortSelect");
@@ -1169,7 +1224,65 @@ body.sheet-open{overflow:hidden;}
   var emptyState = document.getElementById("emptyState");
   var emptyQuery = document.getElementById("emptyQuery");
   var cardTemplate = document.getElementById("recipeCardTemplate");
-
+  var presetsRow = document.getElementById("presetsRow");
+ 
+  function renderPresets(){
+    if (!presetsRow || !WEEK_PRESETS.length) return;
+    presetsRow.innerHTML = "";
+ 
+    var label = document.createElement("span");
+    label.className = "presets-label";
+    label.textContent = "Quick pick:";
+    presetsRow.appendChild(label);
+ 
+    WEEK_PRESETS.forEach(function(preset){
+      var available = preset.recipes.filter(function(n){ return RECIPES[n]; });
+      var selectedCount = available.filter(function(n){ return selections[n]; }).length;
+      var isFullyActive = available.length > 0 && selectedCount === available.length;
+ 
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "preset-btn" + (isFullyActive ? " is-active" : "");
+      btn.title = "Replace current picks with " + preset.label;
+ 
+      var nameSpan = document.createElement("span");
+      nameSpan.textContent = preset.label;
+      btn.appendChild(nameSpan);
+ 
+      if (available.length){
+        var countSpan = document.createElement("span");
+        countSpan.className = "preset-count";
+        countSpan.textContent = selectedCount + "/" + available.length;
+        btn.appendChild(countSpan);
+      }
+ 
+      btn.addEventListener("click", function(){ applyPreset(preset); });
+      presetsRow.appendChild(btn);
+    });
+  }
+ 
+  function applyPreset(preset){
+    var available = preset.recipes.filter(function(n){ return RECIPES[n]; });
+    if (available.length === 0){
+      showSyncBanner("None of " + preset.label + "'s recipes were found in the current recipe list.", "error", true);
+      return;
+    }
+    var missingCount = preset.recipes.length - available.length;
+ 
+    selections = {};
+    available.forEach(function(n){ selections[n] = 1; });
+    saveJSON(STORE_KEY_SEL, selections);
+ 
+    renderRecipeGrid();
+    renderGroceryList();
+ 
+    showSyncBanner(
+      "Loaded " + preset.label + " \u2014 " + available.length + " recipe" + (available.length===1?"":"s") + " picked." +
+        (missingCount > 0 ? " (" + missingCount + " from this preset " + (missingCount===1?"wasn't":"weren't") + " found.)" : ""),
+      "success", true
+    );
+  }
+ 
   function getFilteredSorted(){
     var q = searchInput.value.trim().toLowerCase();
     var list = allRecipeNames.filter(function(name){
@@ -1189,7 +1302,7 @@ body.sheet-open{overflow:hidden;}
     }
     return { list: list, query: q };
   }
-
+ 
   function previewText(name){
     var ings = Object.keys(RECIPES[name]);
     var bases = ings.slice(0,3).map(function(i){ return splitIngredient(i).base; });
@@ -1198,34 +1311,36 @@ body.sheet-open{overflow:hidden;}
     if (extra > 0) text += ", +" + extra + " more";
     return text;
   }
-
+ 
   function renderRecipeGrid(){
+    renderPresets();
+ 
     var result = getFilteredSorted();
     recipeGrid.innerHTML = "";
-
+ 
     resultCount.textContent = result.list.length + " recipe" + (result.list.length === 1 ? "" : "s") +
       (result.query ? " matching \u201c" + searchInput.value.trim() + "\u201d" : " available");
-
+ 
     if (result.list.length === 0){
       emptyState.hidden = false;
       emptyQuery.textContent = searchInput.value.trim();
       return;
     }
     emptyState.hidden = true;
-
+ 
     result.list.forEach(function(name){
       var node = cardTemplate.content.cloneNode(true);
       var card = node.querySelector(".recipe-card");
       var ingCount = Object.keys(RECIPES[name]).length;
-
+ 
       card.querySelector(".recipe-name").textContent = humanizeRecipeName(name);
       card.querySelector(".recipe-badge").textContent = ingCount + (ingCount === 1 ? " ingredient" : " ingredients");
       card.querySelector(".recipe-preview").textContent = previewText(name);
-
+ 
       var pickBtn = card.querySelector(".pick-btn");
       var stepper = card.querySelector(".stepper");
       var stepperValue = card.querySelector(".stepper-value");
-
+ 
       function refreshCardState(){
         var mult = selections[name];
         if (mult){
@@ -1237,7 +1352,7 @@ body.sheet-open{overflow:hidden;}
           stepper.hidden = true;
         }
       }
-
+ 
       function pick(){
         if (!selections[name]) {
           selections[name] = 1;
@@ -1254,7 +1369,7 @@ body.sheet-open{overflow:hidden;}
           onSelectionsChanged();
         }
       }
-
+ 
       pickBtn.addEventListener("click", function(e){
         e.stopPropagation();
         if (selections[name]) unpick(); else pick();
@@ -1268,7 +1383,7 @@ body.sheet-open{overflow:hidden;}
           if (selections[name]) unpick(); else pick();
         }
       });
-
+ 
       stepper.querySelectorAll(".stepper-btn").forEach(function(btn){
         btn.addEventListener("click", function(e){
           e.stopPropagation();
@@ -1283,17 +1398,17 @@ body.sheet-open{overflow:hidden;}
           onSelectionsChanged();
         });
       });
-
+ 
       refreshCardState();
       recipeGrid.appendChild(node);
     });
   }
-
+ 
   searchInput.addEventListener("input", renderRecipeGrid);
   sortSelect.addEventListener("change", renderRecipeGrid);
-
+ 
   // ---------- grocery list ----------
-
+ 
   var listBody = document.getElementById("listBody");
   var listSubtitle = document.getElementById("listSubtitle");
   var mobileBar = document.getElementById("mobileBar");
@@ -1302,7 +1417,7 @@ body.sheet-open{overflow:hidden;}
   var listPanel = document.getElementById("listPanel");
   var scrim = document.getElementById("scrim");
   var sheetClose = document.getElementById("sheetClose");
-
+ 
   function computeAggregate(){
     var totals = {}; // ingredientFull -> amount
     var recipeCount = 0;
@@ -1317,7 +1432,7 @@ body.sheet-open{overflow:hidden;}
     });
     return { totals: totals, recipeCount: recipeCount };
   }
-
+ 
   function pruneStaleOverrides(totals){
     var changed = false;
     Object.keys(qtyOverrides).forEach(function(full){
@@ -1325,7 +1440,7 @@ body.sheet-open{overflow:hidden;}
     });
     if (changed) saveJSON(STORE_KEY_QTY_OVERRIDES, qtyOverrides);
   }
-
+ 
   function pruneStaleChecked(validKeys){
     var changed = false;
     Object.keys(checked).forEach(function(k){
@@ -1333,7 +1448,7 @@ body.sheet-open{overflow:hidden;}
     });
     if (changed) saveJSON(STORE_KEY_CHK, checked);
   }
-
+ 
   function startInlineEdit(hostEl, currentValue, onCommit){
     var input = document.createElement("input");
     input.type = "text";
@@ -1342,7 +1457,7 @@ body.sheet-open{overflow:hidden;}
     hostEl.replaceWith(input);
     input.focus();
     input.select();
-
+ 
     var done = false;
     function commit(){
       if (done) return;
@@ -1355,22 +1470,22 @@ body.sheet-open{overflow:hidden;}
       else if (e.key === "Escape"){ e.preventDefault(); done = true; renderGroceryList(); }
     });
   }
-
+ 
   function renderGroceryList(){
     var agg = computeAggregate();
     var totals = agg.totals;
     var fulls = Object.keys(totals);
     pruneStaleOverrides(totals);
-
+ 
     var validKeys = {};
     fulls.forEach(function(full){ validKeys[full] = true; });
     customItems.forEach(function(item){ validKeys["custom:" + item.id] = true; });
     pruneStaleChecked(validKeys);
-
+ 
     listBody.innerHTML = "";
-
+ 
     var totalItemCount = fulls.length + customItems.length;
-
+ 
     if (totalItemCount === 0){
       var empty = document.createElement("p");
       empty.className = "list-empty";
@@ -1380,9 +1495,9 @@ body.sheet-open{overflow:hidden;}
       updateMobileBar(0, 0);
       return;
     }
-
+ 
     var byRegion = {};
-
+ 
     fulls.forEach(function(full){
       var parts = splitIngredient(full);
       var region = regionForIngredient(full);
@@ -1396,7 +1511,7 @@ body.sheet-open{overflow:hidden;}
         isOverridden: qtyOverrides.hasOwnProperty(full)
       });
     });
-
+ 
     customItems.forEach(function(item){
       var region = item.region || "Other";
       (byRegion[region] = byRegion[region] || []).push({
@@ -1407,36 +1522,36 @@ body.sheet-open{overflow:hidden;}
         qtyDisplay: item.qty || ""
       });
     });
-
+ 
     var regionsPresent = Object.keys(byRegion).sort(function(a,b){
       var ia = REGION_ORDER.indexOf(a); if (ia === -1) ia = 99;
       var ib = REGION_ORDER.indexOf(b); if (ib === -1) ib = 99;
       return ia - ib;
     });
-
+ 
     regionsPresent.forEach(function(region){
       var items = byRegion[region].slice().sort(function(a,b){
         return a.base.localeCompare(b.base);
       });
-
+ 
       var group = document.createElement("div");
       group.className = "region-group";
-
+ 
       var title = document.createElement("p");
       title.className = "region-title";
       title.innerHTML = "<span>" + region + "</span><span class=\"region-count\">" + items.length + "</span>";
       group.appendChild(title);
-
+ 
       items.forEach(function(item){
         var row = document.createElement("div");
         row.className = "item-row" + (checked[item.key] ? " is-checked" : "") + (item.type === "custom" ? " is-custom" : "");
-
+ 
         var cb = document.createElement("button");
         cb.className = "item-checkbox";
         cb.type = "button";
         cb.setAttribute("aria-label", "Mark " + item.base + " as gathered");
         cb.innerHTML = '<svg viewBox="0 0 16 16" width="11" height="11"><path d="M3 8.5 L6.5 12 L13 4" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-
+ 
         function toggleChecked(){
           checked[item.key] = !checked[item.key];
           if (!checked[item.key]) delete checked[item.key];
@@ -1444,11 +1559,11 @@ body.sheet-open{overflow:hidden;}
           row.classList.toggle("is-checked");
         }
         cb.addEventListener("click", toggleChecked);
-
+ 
         var nameEl = document.createElement("span");
         nameEl.className = "item-name";
         nameEl.textContent = item.base;
-
+ 
         if (item.type === "custom"){
           nameEl.classList.add("editable");
           nameEl.title = "Tap to rename";
@@ -1463,10 +1578,10 @@ body.sheet-open{overflow:hidden;}
         } else {
           nameEl.addEventListener("click", toggleChecked);
         }
-
+ 
         var qtyWrap = document.createElement("span");
         qtyWrap.className = "item-qty-wrap";
-
+ 
         var qtyEl = document.createElement("button");
         qtyEl.type = "button";
         qtyEl.className = "item-qty qty-editable" + (item.isOverridden ? " is-edited" : "");
@@ -1490,7 +1605,7 @@ body.sheet-open{overflow:hidden;}
           });
         });
         qtyWrap.appendChild(qtyEl);
-
+ 
         if (item.isOverridden){
           var resetBtn = document.createElement("button");
           resetBtn.type = "button";
@@ -1506,7 +1621,7 @@ body.sheet-open{overflow:hidden;}
           });
           qtyWrap.appendChild(resetBtn);
         }
-
+ 
         if (item.type === "custom"){
           var delBtn = document.createElement("button");
           delBtn.type = "button";
@@ -1524,22 +1639,22 @@ body.sheet-open{overflow:hidden;}
           });
           qtyWrap.appendChild(delBtn);
         }
-
+ 
         row.appendChild(cb);
         row.appendChild(nameEl);
         row.appendChild(qtyWrap);
         group.appendChild(row);
       });
-
+ 
       listBody.appendChild(group);
     });
-
+ 
     listSubtitle.textContent = totalItemCount + " item" + (totalItemCount===1?"":"s") +
       (agg.recipeCount > 0 ? " \u00B7 " + agg.recipeCount + " recipe" + (agg.recipeCount===1?"":"s") : " \u00B7 custom list");
-
+ 
     updateMobileBar(agg.recipeCount, totalItemCount);
   }
-
+ 
   function updateMobileBar(recipeCount, itemCount){
     mobileBar.classList.add("is-visible");
     if (itemCount > 0){
@@ -1553,18 +1668,19 @@ body.sheet-open{overflow:hidden;}
       mobileBarLabel.textContent = "Open grocery list \u2014 add an item";
     }
   }
-
+ 
   function onSelectionsChanged(){
     renderGroceryList();
+    renderPresets();
   }
-
+ 
   // ---------- add custom item ----------
-
+ 
   var addItemForm = document.getElementById("addItemForm");
   var addItemName = document.getElementById("addItemName");
   var addItemQty = document.getElementById("addItemQty");
   var addItemRegion = document.getElementById("addItemRegion");
-
+ 
   (function populateRegionOptions(){
     REGION_ORDER.concat(["Other"]).forEach(function(region){
       var opt = document.createElement("option");
@@ -1574,7 +1690,7 @@ body.sheet-open{overflow:hidden;}
     });
     addItemRegion.value = "Other";
   })();
-
+ 
   addItemForm.addEventListener("submit", function(e){
     e.preventDefault();
     var name = addItemName.value.trim();
@@ -1592,9 +1708,9 @@ body.sheet-open{overflow:hidden;}
     renderGroceryList();
     addItemName.focus();
   });
-
+ 
   // ---------- mobile sheet ----------
-
+ 
   function openSheet(){
     listPanel.classList.add("is-open");
     scrim.classList.add("is-visible");
@@ -1605,13 +1721,13 @@ body.sheet-open{overflow:hidden;}
     scrim.classList.remove("is-visible");
     document.body.classList.remove("sheet-open");
   }
-
+ 
   mobileBar.addEventListener("click", openSheet);
   sheetClose.addEventListener("click", closeSheet);
   scrim.addEventListener("click", closeSheet);
-
+ 
   // ---------- footer actions ----------
-
+ 
   document.getElementById("clearWeekBtn").addEventListener("click", function(){
     selections = {};
     checked = {};
@@ -1625,30 +1741,30 @@ body.sheet-open{overflow:hidden;}
     renderGroceryList();
     closeSheet();
   });
-
+ 
   document.getElementById("uncheckAllBtn").addEventListener("click", function(){
     checked = {};
     saveJSON(STORE_KEY_CHK, checked);
     renderGroceryList();
   });
-
+ 
   document.getElementById("printBtn").addEventListener("click", function(){
     window.print();
   });
-
+ 
   // ---------- share via URL ----------
-
+ 
   var shareBtn = document.getElementById("shareBtn");
   var shareBanner = document.getElementById("shareBanner");
   var shareBannerText = document.getElementById("shareBannerText");
   var shareApplyBtn = document.getElementById("shareApplyBtn");
   var shareDismissBtn = document.getElementById("shareDismissBtn");
   var pendingShared = null; // { selections, customItems, checkedKeys, overrides }
-
+ 
   // --- compact, URL-safe encoding for the share link ---
   // Format: "g<base64url-gzip>" when gzip compression helps and is supported,
   // otherwise "p<base64url-plain>". No percent-encoding needed either way.
-
+ 
   function bytesToBase64Url(bytes){
     var binary = "";
     for (var i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
@@ -1698,7 +1814,7 @@ body.sheet-open{overflow:hidden;}
     }
     return Promise.resolve(new TextDecoder().decode(bytes));
   }
-
+ 
   function buildSharePayload(){
     var payload = {};
     if (Object.keys(selections).length) payload.s = selections;
@@ -1711,14 +1827,14 @@ body.sheet-open{overflow:hidden;}
     if (Object.keys(qtyOverrides).length) payload.o = qtyOverrides;
     return payload;
   }
-
+ 
   function hasShareablePayload(){
     return Object.keys(selections).length > 0 ||
       customItems.length > 0 ||
       Object.keys(checked).some(function(k){ return checked[k]; }) ||
       Object.keys(qtyOverrides).length > 0;
   }
-
+ 
   function buildShareUrl(){
     var payload = buildSharePayload();
     var base = location.origin + location.pathname;
@@ -1727,7 +1843,7 @@ body.sheet-open{overflow:hidden;}
       return base + "?w=" + param;
     });
   }
-
+ 
   function stripShareParam(){
     try{
       var url = new URL(location.href);
@@ -1736,7 +1852,7 @@ body.sheet-open{overflow:hidden;}
       history.replaceState({}, "", url.pathname + (qs ? "?" + qs : "") + url.hash);
     }catch(e){ /* ignore */ }
   }
-
+ 
   if (shareBtn){
     shareBtn.addEventListener("click", function(){
       if (!hasShareablePayload()){
@@ -1763,7 +1879,7 @@ body.sheet-open{overflow:hidden;}
       });
     });
   }
-
+ 
   function describeSharedPayload(p){
     var parts = [];
     var selCount = Object.keys(p.selections).length;
@@ -1776,7 +1892,7 @@ body.sheet-open{overflow:hidden;}
     if (parts.length === 2) return parts[0] + " and " + parts[1];
     return parts.slice(0, -1).join(", ") + ", and " + parts[parts.length - 1];
   }
-
+ 
   function showShareBanner(p){
     shareBannerText.textContent = "This link includes " + describeSharedPayload(p) + ". Load it?";
     shareBanner.hidden = false;
@@ -1786,13 +1902,13 @@ body.sheet-open{overflow:hidden;}
     shareBanner.classList.remove("is-visible");
     setTimeout(function(){ shareBanner.hidden = true; }, 220);
   }
-
+ 
   if (shareApplyBtn){
     shareApplyBtn.addEventListener("click", function(){
       if (pendingShared){
         selections = pendingShared.selections;
         customItems = pendingShared.customItems;
-
+ 
         var customKeys = {};
         customItems.forEach(function(i){ customKeys["custom:" + i.id] = true; });
         var recipeKeys = {};
@@ -1804,18 +1920,18 @@ body.sheet-open{overflow:hidden;}
         pendingShared.checkedKeys.forEach(function(k){
           if (recipeKeys[k] || customKeys[k]) checked[k] = true;
         });
-
+ 
         qtyOverrides = {};
         Object.keys(pendingShared.overrides).forEach(function(k){
           var v = pendingShared.overrides[k];
           if (recipeKeys[k] && typeof v === "string" && v) qtyOverrides[k] = v;
         });
-
+ 
         saveJSON(STORE_KEY_SEL, selections);
         saveJSON(STORE_KEY_CUSTOM_ITEMS, customItems);
         saveJSON(STORE_KEY_CHK, checked);
         saveJSON(STORE_KEY_QTY_OVERRIDES, qtyOverrides);
-
+ 
         renderRecipeGrid();
         renderGroceryList();
       }
@@ -1831,25 +1947,25 @@ body.sheet-open{overflow:hidden;}
       stripShareParam();
     });
   }
-
+ 
   function checkForSharedWeek(){
     var params;
     try{ params = new URLSearchParams(location.search); }catch(e){ return; }
     var param = params.get("w");
     if (!param) return;
-
+ 
     decompressFromParam(param).then(function(json){
       var payload;
       try{ payload = JSON.parse(json); }catch(e){ stripShareParam(); return; }
       if (!payload || typeof payload !== "object"){ stripShareParam(); return; }
-
+ 
       var rawSel = (payload.s && typeof payload.s === "object") ? payload.s : {};
       var validSel = {};
       Object.keys(rawSel).forEach(function(n){
         var mult = parseInt(rawSel[n], 10);
         if (RECIPES[n] && mult > 0 && mult <= MAX_MULT) validSel[n] = mult;
       });
-
+ 
       var rawCustom = Array.isArray(payload.c) ? payload.c : [];
       var validCustom = rawCustom.filter(function(t){
         return Array.isArray(t) && typeof t[1] === "string" && t[1].trim();
@@ -1861,16 +1977,16 @@ body.sheet-open{overflow:hidden;}
           region: (typeof t[3] === "string" && t[3].trim()) ? t[3].trim() : "Other"
         };
       });
-
+ 
       var checkedKeys = Array.isArray(payload.k) ? payload.k.filter(function(k){ return typeof k === "string"; }) : [];
       var overrides = (payload.o && typeof payload.o === "object") ? payload.o : {};
-
+ 
       var totalCount = Object.keys(validSel).length + validCustom.length;
       if (totalCount === 0 && checkedKeys.length === 0 && Object.keys(overrides).length === 0){
         stripShareParam();
         return;
       }
-
+ 
       pendingShared = {
         selections: validSel,
         customItems: validCustom,
@@ -1883,9 +1999,9 @@ body.sheet-open{overflow:hidden;}
       stripShareParam();
     });
   }
-
+ 
   // ---------- update recipes (CSV upload) ----------
-
+ 
   var updateRecipesBtn = document.getElementById("updateRecipesBtn");
   var updateModal = document.getElementById("updateModal");
   var modalScrim = document.getElementById("modalScrim");
@@ -1897,10 +2013,10 @@ body.sheet-open{overflow:hidden;}
   var groupingsFileInput = document.getElementById("groupingsFileInput");
   var modalStatus = document.getElementById("modalStatus");
   var modalMessage = document.getElementById("modalMessage");
-
+ 
   var pendingRecipesFile = null;
   var pendingGroupingsFile = null;
-
+ 
   function parseCSV(text){
     var rows = [];
     var row = [];
@@ -1926,7 +2042,7 @@ body.sheet-open{overflow:hidden;}
     if (field.length > 0 || row.length > 0){ row.push(field); rows.push(row); }
     return rows.filter(function(r){ return r.some(function(cell){ return cell.trim() !== ""; }); });
   }
-
+ 
   function parseAmount(str){
     str = (str || "").trim();
     if (!str) return null;
@@ -1938,7 +2054,7 @@ body.sheet-open{overflow:hidden;}
     var num = parseFloat(str);
     return isNaN(num) ? null : num;
   }
-
+ 
   function parseRecipesCSV(text){
     var rows = parseCSV(text);
     if (rows.length < 2) throw new Error("That file doesn't have enough rows to be a recipe sheet.");
@@ -1947,7 +2063,7 @@ body.sheet-open{overflow:hidden;}
     var recipeNames = header.slice(1);
     var recipes = {};
     recipeNames.forEach(function(n){ if (n) recipes[n] = {}; });
-
+ 
     for (var r = 1; r < rows.length; r++){
       var row = rows[r];
       var ingredient = (row[0] || "").trim();
@@ -1961,16 +2077,16 @@ body.sheet-open{overflow:hidden;}
         }
       }
     }
-
+ 
     // drop recipes that ended up with no ingredients
     Object.keys(recipes).forEach(function(name){
       if (Object.keys(recipes[name]).length === 0) delete recipes[name];
     });
-
+ 
     if (Object.keys(recipes).length === 0) throw new Error("No recipes with ingredient amounts were found in that file.");
     return recipes;
   }
-
+ 
   function parseGroupingsCSV(text){
     var rows = parseCSV(text);
     var groupings = {};
@@ -1982,18 +2098,18 @@ body.sheet-open{overflow:hidden;}
     }
     return groupings;
   }
-
+ 
   function showModalMessage(text, kind){
     modalMessage.hidden = !text;
     modalMessage.textContent = text || "";
     modalMessage.className = "modal-message" + (kind ? " is-" + kind : "");
   }
-
+ 
   function formatTime(ms){
     try{ return new Date(ms).toLocaleString([], {month:"short", day:"numeric", hour:"numeric", minute:"2-digit"}); }
     catch(e){ return ""; }
   }
-
+ 
   function refreshModalStatus(){
     if (dataMeta && dataMeta.source === "manual"){
       modalStatus.textContent = "Using a manually uploaded file: " + dataMeta.fileName +
@@ -2007,7 +2123,7 @@ body.sheet-open{overflow:hidden;}
       restoreDefaultBtn.hidden = true;
     }
   }
-
+ 
   function openModal(){
     updateModal.hidden = false;
     updateModal.classList.add("is-visible");
@@ -2027,12 +2143,12 @@ body.sheet-open{overflow:hidden;}
     showModalMessage("");
     modalReplaceBtn.disabled = true;
   }
-
+ 
   updateRecipesBtn.addEventListener("click", openModal);
   modalCloseBtn.addEventListener("click", closeModal);
   modalCancelBtn.addEventListener("click", closeModal);
   modalScrim.addEventListener("click", closeModal);
-
+ 
   recipesFileInput.addEventListener("change", function(){
     pendingRecipesFile = recipesFileInput.files[0] || null;
     modalReplaceBtn.disabled = !pendingRecipesFile;
@@ -2041,7 +2157,7 @@ body.sheet-open{overflow:hidden;}
   groupingsFileInput.addEventListener("change", function(){
     pendingGroupingsFile = groupingsFileInput.files[0] || null;
   });
-
+ 
   function readFileAsText(file){
     return new Promise(function(resolve, reject){
       var reader = new FileReader();
@@ -2050,7 +2166,7 @@ body.sheet-open{overflow:hidden;}
       reader.readAsText(file);
     });
   }
-
+ 
   function applyGroupingFallback(newRecipes, newGroupings){
     Object.keys(newRecipes).forEach(function(recipeName){
       Object.keys(newRecipes[recipeName]).forEach(function(ingredient){
@@ -2058,21 +2174,21 @@ body.sheet-open{overflow:hidden;}
       });
     });
   }
-
+ 
   modalReplaceBtn.addEventListener("click", function(){
     if (!pendingRecipesFile) return;
     modalReplaceBtn.disabled = true;
     modalReplaceBtn.textContent = "Reading\u2026";
     showModalMessage("");
-
+ 
     var readGroupings = pendingGroupingsFile ? readFileAsText(pendingGroupingsFile) : Promise.resolve(null);
-
+ 
     Promise.all([readFileAsText(pendingRecipesFile), readGroupings]).then(function(results){
       var recipesText = results[0];
       var groupingsText = results[1];
-
+ 
       var newRecipes = parseRecipesCSV(recipesText);
-
+ 
       var newGroupings = {};
       Object.keys(GROUPINGS).forEach(function(k){ newGroupings[k] = GROUPINGS[k]; });
       if (groupingsText){
@@ -2080,7 +2196,7 @@ body.sheet-open{overflow:hidden;}
         Object.keys(uploadedGroupings).forEach(function(k){ newGroupings[k] = uploadedGroupings[k]; });
       }
       applyGroupingFallback(newRecipes, newGroupings);
-
+ 
       RECIPES = newRecipes;
       GROUPINGS = newGroupings;
       allRecipeNames = Object.keys(RECIPES);
@@ -2088,7 +2204,7 @@ body.sheet-open{overflow:hidden;}
       checked = {};
       saveJSON(STORE_KEY_SEL, selections);
       saveJSON(STORE_KEY_CHK, checked);
-
+ 
       dataMeta = {
         source: "manual",
         fileName: pendingRecipesFile.name,
@@ -2097,11 +2213,11 @@ body.sheet-open{overflow:hidden;}
       };
       var stored = saveJSON(STORE_KEY_CUSTOM, { recipes: newRecipes, groupings: newGroupings });
       saveJSON(STORE_KEY_META, dataMeta);
-
+ 
       renderRecipeGrid();
       renderGroceryList();
       refreshModalStatus();
-
+ 
       showModalMessage(
         "Loaded " + dataMeta.recipeCount + " recipes from " + dataMeta.fileName +
         (stored ? "." : ". (Your browser wouldn't save this for next time, but it's active now.)"),
@@ -2118,7 +2234,7 @@ body.sheet-open{overflow:hidden;}
       modalReplaceBtn.disabled = !recipesFileInput.files[0];
     });
   });
-
+ 
   restoreDefaultBtn.addEventListener("click", function(){
     try{ localStorage.removeItem(STORE_KEY_CUSTOM); }catch(e){}
     try{ localStorage.removeItem(STORE_KEY_META); }catch(e){}
@@ -2136,15 +2252,15 @@ body.sheet-open{overflow:hidden;}
     refreshModalStatus();
     showModalMessage("Restored the built-in sample recipes.", "success");
   });
-
+ 
   // ---------- CSV file sync (same-directory GitHub Pages files) ----------
-
+ 
   var syncBanner = document.getElementById("syncBanner");
   var syncBannerText = document.getElementById("syncBannerText");
   var checkNowBtn = document.getElementById("checkNowBtn");
   var syncBannerTimer = null;
   var syncInFlight = false;
-
+ 
   function showSyncBanner(text, kind, autoHide){
     clearTimeout(syncBannerTimer);
     syncBanner.hidden = false;
@@ -2159,7 +2275,7 @@ body.sheet-open{overflow:hidden;}
     syncBanner.classList.remove("is-visible");
     setTimeout(function(){ syncBanner.hidden = true; }, 250);
   }
-
+ 
   function fetchText(url){
     var bust = (url.indexOf("?") === -1 ? "?" : "&") + "_=" + Date.now();
     return fetch(url + bust, { method: "GET", cache: "no-store" }).then(function(res){
@@ -2167,7 +2283,7 @@ body.sheet-open{overflow:hidden;}
       return res.text();
     });
   }
-
+ 
   function runFileSync(opts){
     opts = opts || {};
     if (syncInFlight) return Promise.resolve({ skipped: true });
@@ -2175,30 +2291,30 @@ body.sheet-open{overflow:hidden;}
     lastSyncCheckAt = Date.now();
     if (checkNowBtn){ checkNowBtn.disabled = true; checkNowBtn.textContent = "Checking\u2026"; }
     showSyncBanner("Checking your CSV files for updates\u2026", "info", false);
-
+ 
     return Promise.all([fetchText(DATA_URLS.recipes), fetchText(DATA_URLS.groupings)])
       .then(function(results){
         var recipesText = results[0], groupingsText = results[1];
         var lastRaw = loadJSON(STORE_KEY_SYNC_RAW, null);
         var isFirstSync = !lastRaw;
         var changed = isFirstSync || lastRaw.recipesText !== recipesText || lastRaw.groupingsText !== groupingsText;
-
+ 
         saveJSON(STORE_KEY_SYNC_RAW, { recipesText: recipesText, groupingsText: groupingsText });
-
+ 
         if (!changed){
           showSyncBanner("Recipes are already up to date.", "success", true);
           return { changed: false };
         }
-
+ 
         var newRecipes = parseRecipesCSV(recipesText);
         var newGroupings = parseGroupingsCSV(groupingsText);
         applyGroupingFallback(newRecipes, newGroupings);
-
+ 
         RECIPES = newRecipes;
         GROUPINGS = newGroupings;
         allRecipeNames = Object.keys(RECIPES);
         pruneStaleSelections();
-
+ 
         saveJSON(STORE_KEY_CUSTOM, { recipes: newRecipes, groupings: newGroupings });
         dataMeta = {
           source: "csv",
@@ -2206,11 +2322,11 @@ body.sheet-open{overflow:hidden;}
           syncedAt: Date.now()
         };
         saveJSON(STORE_KEY_META, dataMeta);
-
+ 
         renderRecipeGrid();
         renderGroceryList();
         refreshModalStatus();
-
+ 
         showSyncBanner(
           isFirstSync
             ? "Connected to your CSV files \u2014 " + dataMeta.recipeCount + " recipes loaded."
@@ -2229,26 +2345,26 @@ body.sheet-open{overflow:hidden;}
         return result;
       });
   }
-
+ 
   if (checkNowBtn){
     checkNowBtn.addEventListener("click", function(){ runFileSync({ manual: true }); });
   }
-
+ 
   document.addEventListener("visibilitychange", function(){
     if (document.visibilityState === "visible" && (Date.now() - lastSyncCheckAt) > SYNC_MIN_INTERVAL_MS){
       runFileSync({});
     }
   });
-
+ 
   // ---------- init ----------
-
+ 
   renderRecipeGrid();
   renderGroceryList();
   runFileSync({});
   checkForSharedWeek();
-
+ 
 })();
-
+ 
 </script>
 </body>
 </html>
